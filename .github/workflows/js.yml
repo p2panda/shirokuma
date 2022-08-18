@@ -1,0 +1,93 @@
+name: shirokuma
+
+on: push
+
+env:
+  cache_path: |
+    ~/.npm
+
+jobs:
+  js-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node: [14, 16, 18]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup node ${{ matrix.node }}
+        # This action handles node dependency caching for us
+        uses: actions/setup-node@v2
+        with:
+          node-version: "${{ matrix.node }}"
+
+      - name: Restore from npm cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.cache_path }}
+          # Note that this caching action does NOT cache node dependencies.
+          # This is done by "actions/setup-node" instead. Here we're caching
+          # npm artifacts.
+          key: ${{ runner.os }}-test-${{ matrix.node }}-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm run test --coverage
+
+      - if: matrix.node == 16
+        uses: codecov/codecov-action@v2
+
+  js-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup node
+        # This action also handles dependency caching for us
+        uses: actions/setup-node@v2
+        with:
+          node-version-file: ${{ env.working_directory}}/.nvmrc
+
+      - name: Restore from npm cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.cache_path }}
+          key: ${{ runner.os }}-build-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run build
+        run: npm run build
+
+  typecheck:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup node
+        # This action also handles dependency caching for us
+        uses: actions/setup-node@v2
+        with:
+          node-version-file: ${{ env.working_directory}}/.nvmrc
+
+      - name: Restore from npm cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.cache_path }}
+          key: ${{ runner.os }}-test-${{ matrix.node }}-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check types
+        run: npm run typecheck

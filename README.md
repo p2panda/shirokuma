@@ -19,7 +19,7 @@
 
 <div align="center">
   <h3>
-    <a href="https://github.com/p2panda/shirokuma">
+    <a href="https://github.com/p2panda/shirokuma#installation">
       Installation
     </a>
     <span> | </span>
