@@ -108,6 +108,22 @@ const Chat = () => {
 };
 ```
 
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Check code formatting
+npm run lint
+
+# Run tests
+npm test
+
+# Bundle js package
+npm run build
+```
+
 ### Debug logging
 
 Enable debug logging for node environments by setting an environment variable:
