@@ -9,7 +9,7 @@
 <div align="center">
   <!-- CI status -->
   <a href="https://github.com/p2panda/shirokuma/actions">
-    <img src="https://img.shields.io/github/workflow/status/p2panda/shirokuma/Build%20and%20test?style=flat-square" alt="CI Status" />
+    <img src="https://img.shields.io/github/checks-status/p2panda/shirokuma/main?style=flat-square" alt="CI Status" />
   </a>
   <!-- NPM version -->
   <a href="https://www.npmjs.com/package/shirokuma">
