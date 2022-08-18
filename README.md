@@ -35,7 +35,7 @@
 
 <br />
 
-This library provides all tools required to write a client for the [`p2panda`] network, shipped with TypeScript definitions running in NodeJS, Tauri or Electron containers or any modern web browser.
+This library provides all tools required to write an [`p2panda`] application in TypeScript, running in NodeJS, Tauri or Electron containers or any modern web browser.
 
 [`p2panda`]: https://github.com/p2panda/handbook
 
