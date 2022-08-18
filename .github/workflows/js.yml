@@ -7,7 +7,7 @@ env:
     ~/.npm
 
 jobs:
-  js-test:
+  test:
     runs-on: ubuntu-latest
 
     strategy:
@@ -42,7 +42,7 @@ jobs:
       - if: matrix.node == 16
         uses: codecov/codecov-action@v2
 
-  js-build:
+  build:
     runs-on: ubuntu-latest
 
     steps:
