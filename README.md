@@ -35,7 +35,7 @@
 
 <br />
 
-This library provides all tools required to write an [`p2panda`] application in TypeScript, running in NodeJS, Tauri or Electron containers or any modern web browser.
+This library provides all tools required to write an [`p2panda`] application in TypeScript, running in any modern web browser.
 
 [`p2panda`]: https://github.com/p2panda/handbook
 
@@ -49,13 +49,13 @@ npm i shirokuma
 
 ## Usage
 
-`shirokuma` runs both in NodeJS and web browsers and can be integrated in a bundle for example via Webpack or Rollup.
+`shirokuma` runs in web browsers and can be integrated in a bundle for example via Webpack or Rollup.
 
 ```js
 import { KeyPair, Session, initWebAssembly } from 'shirokuma';
 
-// When running p2panda in the Browser, this method needs to be run once
-// before using all other `shirokuma` methods
+// This method needs to be run once before to initialise the embedded
+// WebAssembly code in this package
 await initWebAssembly();
 
 // This example uses the "chat" schema at which this hash is pointing. We are

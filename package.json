@@ -2,21 +2,34 @@
   "name": "shirokuma",
   "version": "0.1.0",
   "description": "TypeScript framework to easily write p2panda applications",
-  "main": "lib/index.js",
+  "type": "module",
+  "main": "./lib/umd/index.js",
+  "module": "./lib/esm/index.js",
+  "types": "./lib/umd/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/cjs/index.d.ts",
+      "import": "./lib/esm/index.js",
+      "default": "./lib/cjs/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "build": "cross-env NODE_ENV=production run-s clear rollup",
     "clear": "rimraf ./lib",
     "docs": "typedoc src/index.ts",
     "lint": "eslint --ext .ts .",
     "rollup": "rollup -c",
-    "test": "cross-env NODE_ENV=development run-s clear test:jest",
-    "test:jest": "jest --coverage=$npm_config_coverage",
+    "test": "cross-env NODE_ENV=development jest --coverage=$npm_config_coverage",
     "test:watch": "nodemon --watch '../p2panda-rs/src/*' --watch './src/*' --exec 'npm test' --ext js,ts,json",
     "typecheck": "tsc --noEmit"
   },
   "engines": {
     "node": ">= v16.0.0"
   },
+  "files": [
+    "lib"
+  ],
   "contributors": [
     "adz <x1d@adz.garden>",
     "cafca <cafca@001.land>",
@@ -32,6 +45,14 @@
   },
   "homepage": "https://github.com/p2panda/shirokuma#readme",
   "devDependencies": {
+    "@babel/cli": "^7.18.10",
+    "@babel/core": "^7.18.10",
+    "@babel/preset-env": "^7.18.10",
+    "@babel/register": "^7.18.9",
+    "@rollup/plugin-babel": "^5.3.1",
+    "@rollup/plugin-commonjs": "^22.0.2",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^13.3.0",
     "@rollup/plugin-typescript": "^8.3.4",
     "@tsconfig/node16": "^1.0.3",
     "@types/jest": "^28.1.6",
