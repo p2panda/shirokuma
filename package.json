@@ -4,14 +4,15 @@
   "description": "TypeScript framework to easily write p2panda applications",
   "main": "lib/index.js",
   "scripts": {
-    "build": "cross-env NODE_ENV=production run-s clear",
+    "build": "cross-env NODE_ENV=production run-s clear rollup",
     "clear": "rimraf ./lib",
     "docs": "typedoc src/index.ts",
     "lint": "eslint --ext .ts .",
-    "typecheck": "tsc --noEmit",
+    "rollup": "rollup -c",
     "test": "cross-env NODE_ENV=development run-s clear test:jest",
     "test:jest": "jest --coverage=$npm_config_coverage",
-    "test:watch": "nodemon --watch '../p2panda-rs/src/*' --watch './src/*' --exec 'npm test' --ext js,ts,json"
+    "test:watch": "nodemon --watch '../p2panda-rs/src/*' --watch './src/*' --exec 'npm test' --ext js,ts,json",
+    "typecheck": "tsc --noEmit"
   },
   "engines": {
     "node": ">= v16.0.0"
@@ -31,16 +32,12 @@
   },
   "homepage": "https://github.com/p2panda/shirokuma#readme",
   "devDependencies": {
-    "@babel/cli": "^7.18.10",
-    "@babel/core": "^7.18.10",
-    "@babel/register": "^7.18.9",
-    "@tsconfig/node16": "^1.0.11",
-    "@types/debug": "^4.1.7",
+    "@rollup/plugin-typescript": "^8.3.4",
+    "@tsconfig/node16": "^1.0.3",
     "@types/jest": "^28.1.6",
     "@types/node": "^18.7.3",
     "@typescript-eslint/eslint-plugin": "^5.33.0",
     "@typescript-eslint/parser": "^5.33.0",
-    "babel-loader": "^8.2.5",
     "cross-env": "^7.0.3",
     "eslint": "^8.22.0",
     "eslint-config-prettier": "^8.5.0",
@@ -51,13 +48,14 @@
     "npm-run-all": "^4.1.5",
     "prettier": "^2.7.1",
     "rimraf": "^3.0.2",
+    "rollup-plugin-dts": "^4.2.2",
     "ts-jest": "^28.0.7",
-    "ts-loader": "^9.3.1",
     "ts-node": "^10.9.1",
     "typedoc": "^0.23.10",
     "typescript": "^4.7.4"
   },
   "dependencies": {
+    "@types/debug": "^4.1.7",
     "debug": "^4.3.4",
     "graphql": "^16.5.0",
     "graphql-request": "^4.3.0"

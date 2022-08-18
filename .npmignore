@@ -1,0 +1,14 @@
+*.tgz
+.eslintignore
+.eslintrc.json
+.nvmrc
+.prettierignore
+.prettierrc.json
+/coverage
+docs
+jest.config.ts
+rollup.config.js
+src
+test
+tsconfig.json
+typedoc.json
