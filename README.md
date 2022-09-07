@@ -37,11 +37,11 @@
 
 This library provides all tools required to write an [`p2panda`] application in TypeScript, running in any modern web browser.
 
-[`p2panda`]: https://github.com/p2panda/handbook
+[`p2panda`]: https://p2panda.org
 
 ## Installation
 
-To install `shirokuma` from the NPM package, run:
+To install `shirokuma` run:
 
 ```
 npm i shirokuma
@@ -49,7 +49,8 @@ npm i shirokuma
 
 ## Usage
 
-`shirokuma` runs in web browsers and can be integrated in a bundle for example via Webpack or Rollup.
+`shirokuma` runs in web browsers and can be integrated in a bundle for example
+via Webpack or Rollup.
 
 ```js
 import { KeyPair, Session, initWebAssembly } from 'shirokuma';
@@ -154,8 +155,8 @@ GNU Affero General Public License v3.0 [`AGPL-3.0-or-later`](LICENSE)
 
 ## Supported by
 
-<img src="https://p2panda.org/images/ngi-logo.png" width="auto" height="80px"><br />
-<img src="https://p2panda.org/images/eu-flag-logo.png" width="auto" height="80px">
+<img src="https://raw.githubusercontent.com/p2panda/.github/main/assets/ngi-logo.png" width="auto" height="80px"><br />
+<img src="https://raw.githubusercontent.com/p2panda/.github/main/assets/eu-flag-logo.png" width="auto" height="80px">
 
 *This project has received funding from the European Union’s Horizon 2020
 research and innovation programme within the framework of the NGI-POINTER
