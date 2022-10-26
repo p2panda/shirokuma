@@ -35,7 +35,7 @@ export const signPublishEntry = async (
   const entryEncoded = signAndEncodeEntry(
     {
       ...nextArgs,
-      payload: operationEncoded,
+      operation: operationEncoded,
     },
     keyPair,
   );
