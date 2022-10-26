@@ -16,7 +16,7 @@ import TEST_DATA from './test-data.json';
 // Right now we only have one author `panda` who only has one schema log. This
 // could be expanded in the future.
 const encodedEntries = TEST_DATA.panda.logs[0].encodedEntries;
-const nextEntryArgs = TEST_DATA.panda.logs[0].nextEntryArgs;
+const nextArgs = TEST_DATA.panda.logs[0].nextArgs;
 
 // Convert JSON-imported operations to use `Map`s instead of objects for
 // reporesenting operation fields.
@@ -83,16 +83,16 @@ export const entryFixture = (seqNum: number): Entry => {
     fields: fields,
   };
 
-  if (decodedOperations[index].previous_operations) {
-    operation.previous_operations =
-      decodedOperations[index].previous_operations;
+  if (decodedOperations[index].previous) {
+    operation.previous =
+      decodedOperations[index].previous;
   }
 
   const entry: Entry = {
-    backlink: nextEntryArgs[index].backlink as string | undefined,
-    skiplink: nextEntryArgs[index].skiplink as string | undefined,
-    seqNum: BigInt(nextEntryArgs[index].seqNum),
-    logId: BigInt(nextEntryArgs[index].logId),
+    backlink: nextArgs[index].backlink as string | undefined,
+    skiplink: nextArgs[index].skiplink as string | undefined,
+    seqNum: BigInt(nextArgs[index].seqNum),
+    logId: BigInt(nextArgs[index].logId),
     operation,
   };
 
@@ -128,10 +128,10 @@ export const entryArgsFixture = (seqNum: number): NextArgs => {
   const index = seqNum - 1;
 
   const entryArgs: NextArgs = {
-    backlink: (nextEntryArgs[index].backlink || null) as string | undefined,
-    skiplink: (nextEntryArgs[index].skiplink || null) as string | undefined,
-    seqNum: nextEntryArgs[index].seqNum,
-    logId: nextEntryArgs[index].logId,
+    backlink: (nextArgs[index].backlink || null) as string | undefined,
+    skiplink: (nextArgs[index].skiplink || null) as string | undefined,
+    seqNum: nextArgs[index].seqNum,
+    logId: nextArgs[index].logId,
   };
 
   return entryArgs;

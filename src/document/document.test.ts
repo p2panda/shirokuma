@@ -8,7 +8,6 @@ import type { Fields } from '../types';
 
 import {
   authorFixture,
-  documentIdFixture,
   entryFixture,
   encodedEntryFixture,
   entryArgsFixture,
@@ -57,22 +56,13 @@ describe('document', () => {
       // These are the fields for an update operation
       const fields = entryFixture(2).operation?.fields as Fields;
 
-      // This is the document id
-      const id = documentIdFixture();
+      const previous = entryFixture(2).operation?.previous as string[];
 
-      const previousOperations = entryFixture(2).operation
-        ?.previous_operations as string[];
-
-      const entryEncoded = await updateDocument(
-        id,
-        previousOperations,
-        fields,
-        {
-          keyPair,
-          schema: schemaFixture(),
-          session,
-        },
-      );
+      const entryEncoded = await updateDocument(previous, fields, {
+        keyPair,
+        schema: schemaFixture(),
+        session,
+      });
 
       expect(entryEncoded).toEqual(encodedEntryFixture(2).entryBytes);
     });
@@ -89,13 +79,9 @@ describe('document', () => {
         .mockResolvedValue(entryArgsFixture(4));
       jest.spyOn(session, 'getNextArgs').mockImplementation(asyncFunctionMock);
 
-      // This is the document id
-      const id = documentIdFixture();
+      const previous = entryFixture(4).operation?.previous as string[];
 
-      const previousOperations = entryFixture(4).operation
-        ?.previous_operations as string[];
-
-      const entryEncoded = await deleteDocument(id, previousOperations, {
+      const entryEncoded = await deleteDocument(previous, {
         keyPair,
         schema: schemaFixture(),
         session,

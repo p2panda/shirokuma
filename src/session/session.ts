@@ -22,10 +22,9 @@ type NextArgsVariables = {
 };
 
 // GraphQL query to retrieve next entry args from node.
-// @TODO: Query `nextEntryArgs` is deprecated and will be replaced by `nextArgs` soon
 export const GQL_NEXT_ARGS = gql`
   query NextArgs($publicKey: String!, $viewId: String) {
-    nextEntryArgs(publicKey: $publicKey, documentId: $viewId) {
+    nextArgs(publicKey: $publicKey, viewId: $viewId) {
       logId
       seqNum
       backlink
@@ -42,10 +41,9 @@ type PublishVariables = {
 // GraphQL mutation to publish an entry and retrieve arguments for encoding the
 // next operation on the same document (those are currently not used to update
 // the next entry arguments cache).
-// @TODO: Query `publishEntry` is deprecated and will be replaced by `publish` soon
 export const GQL_PUBLISH = gql`
   mutation Publish($entry: String!, $operation: String!) {
-    publishEntry(entry: $entry, operation: $operation) {
+    publish(entry: $entry, operation: $operation) {
       logId
       seqNum
       backlink
@@ -145,7 +143,7 @@ export class Session {
   /**
    * Return arguments for constructing the next entry given author and schema.
    *
-   * This uses the cache set through `Session._setNextEntryArgs`.
+   * This uses the cache set through `Session._setnextArgs`.
    *
    * @param publicKey public key of the author
    * @param viewId optional document view id
@@ -176,8 +174,8 @@ export class Session {
 
     try {
       const data = await this.client.request(GQL_NEXT_ARGS, variables);
-      // @TODO: Query `nextEntryArgs` is deprecated and will be replaced by `nextArgs` soon
-      const nextArgs = data.nextEntryArgs;
+      // @TODO: Query `nextArgs` is deprecated and will be replaced by `nextArgs` soon
+      const nextArgs = data.nextArgs;
       log('request nextArgs', nextArgs);
       return nextArgs;
     } catch (err) {
@@ -217,12 +215,12 @@ export class Session {
 
     try {
       const data = await this.client.request(GQL_PUBLISH, variables);
-      log('request publishEntry', data);
-      // @TODO: Query `publishEntry` is deprecated and will be replaced by `publish` soon
-      if (data?.publishEntry == null) {
-        throw new Error("Response doesn't contain field `publishEntry`");
+      log('request publish', data);
+      // @TODO: Query `publish` is deprecated and will be replaced by `publish` soon
+      if (data?.publish == null) {
+        throw new Error("Response doesn't contain field `publish`");
       }
-      return data.publishEntry;
+      return data.publish;
     } catch (err) {
       log('Error publishing entry');
       throw err;
@@ -271,52 +269,49 @@ export class Session {
    * Signs and publishes an UPDATE operation for the given application data and
    * matching schema.
    *
-   * The document to be updated is referenced by its document id, which is the
-   * operation id of that document's initial `CREATE` operation.
+   * The document to be updated is identified by the `previous` parameter which contains
+   * the most recent known document view id.
    *
    * Caches arguments for creating the next entry of this schema in the given
    * session.
    *
-   * @param documentId id of the document we update, this is the id of the root `create` operation
    * @param fields application data to publish with the new entry, needs to match schema
-   * @param previousOperations array of operation ids identifying the tips of all currently un-merged branches in the document graph
+   * @param previous array of operation ids identifying the tips of all currently un-merged branches in the document graph
    * @param options optional config object:
    * @param options.keyPair will be used to sign the new entry
    * @param options.schema hex-encoded schema id
    * @example
-   * const documentId = '00200cf84048b0798942deba7b1b9fcd77ca72876643bd3fedfe612d4c6fb60436be';
    * const operationFields = {
    *   message: 'ahoy',
    * };
-   * const previousOperations = [
+   * const previous = [
    *   '00203341c9dd226525886ee77c95127cd12f74366703e02f9b48f3561a9866270f07',
    * ];
    * await new Session(endpoint)
    *   .setKeyPair(keyPair)
-   *   .update(documentId, operationFields, previousOperations, { schema });
+   *   .update(operationFields, previous, { schema });
    */
   async update(
-    documentId: string,
     fields: Fields,
-    previousOperations: string[],
+    previous: string[],
     options?: Partial<Context>,
   ): Promise<Session> {
     // We should validate the data against the schema here too eventually
-    if (!documentId) {
-      throw new Error('Document id must be provided');
+    if (!previous) {
+      throw new Error('Previous view id must be provided');
     }
 
     if (!fields) {
       throw new Error('Operation fields must be provided');
     }
 
-    log('update document', documentId, fields);
+    log('update document wyth view ', previous, fields);
     const mergedOptions = {
       schema: options?.schema || this.schema,
       keyPair: options?.keyPair || this.keyPair,
       session: this,
     };
-    updateDocument(documentId, previousOperations, fields, mergedOptions);
+    updateDocument(previous, fields, mergedOptions);
 
     return this;
   }
@@ -324,41 +319,38 @@ export class Session {
   /**
    * Signs and publishes a DELETE operation for the given schema.
    *
-   * The document to be deleted is referenced by its document id, which is the
-   * operation id of that document's initial `CREATE` operation.
+   * The document to be deleted is identified by the `previous` parameter
+   * which contains the most recent known document view id.
    *
    * Caches arguments for creating the next entry of this schema in the given session.
    *
-   * @param documentId id of the document we delete, this is the hash of the root `create` entry
-   * @param previousOperations array of operation ids identifying the tips of all currently un-merged branches in the document graph
+   * @param previous array of operation ids identifying the tips of all currently un-merged branches in the document graph
    * @param options optional config object:
    * @param options.keyPair will be used to sign the new entry
    * @param options.schema hex-encoded schema id
    * @example
-   * const documentId = '00200cf84048b0798942deba7b1b9fcd77ca72876643bd3fedfe612d4c6fb60436be';
-   * const previousOperations = [
+   * const previous = [
    *   '00203341c9dd226525886ee77c95127cd12f74366703e02f9b48f3561a9866270f07',
    * ];
    * await new Session(endpoint)
    *   .setKeyPair(keyPair)
-   *   .delete(documentId, previousOperations, { schema });
+   *   .delete(previous, { schema });
    */
   async delete(
-    documentId: string,
-    previousOperations: string[],
+    previous: string[],
     options?: Partial<Context>,
   ): Promise<Session> {
-    if (!documentId) {
-      throw new Error('Document id must be provided');
+    if (!previous) {
+      throw new Error('Previous view id must be provided');
     }
 
-    log('delete document', documentId);
+    log('delete document with view ', previous);
     const mergedOptions = {
       schema: options?.schema || this.schema,
       keyPair: options?.keyPair || this.keyPair,
       session: this,
     };
-    deleteDocument(documentId, previousOperations, mergedOptions);
+    deleteDocument(previous, mergedOptions);
 
     return this;
   }
