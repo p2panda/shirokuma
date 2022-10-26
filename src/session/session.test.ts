@@ -18,8 +18,8 @@ import {
 } from '../../test/fixtures';
 
 /* Set up GraphQL server mock. It will respond to:
- * - query `nextEntryArgs`: always returns entry args for sequence number 6
- * - mutation `publishEntry` always returns a response as if sequence
+ * - query `nextArgs`: always returns entry args for sequence number 6
+ * - mutation `publish` always returns a response as if sequence
  *   number 5 had been published. */
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 jest.mock('node-fetch', () => require('fetch-mock-jest').sandbox());
@@ -38,7 +38,7 @@ fetchMock
     },
     {
       data: {
-        nextEntryArgs: entryArgsFixture(5),
+        nextArgs: entryArgsFixture(5),
       },
     },
   )
@@ -50,7 +50,7 @@ fetchMock
     },
     {
       data: {
-        publishEntry: entryArgsFixture(5),
+        publish: entryArgsFixture(5),
       },
     },
   );
@@ -123,7 +123,7 @@ describe('Session', () => {
     });
   });
 
-  describe('get/setNextEntryArgs', () => {
+  describe('get/setnextArgs', () => {
     it('returns next entry args from node', async () => {
       const session = new Session('http://localhost:2020');
 

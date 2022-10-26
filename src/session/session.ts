@@ -22,10 +22,9 @@ type NextArgsVariables = {
 };
 
 // GraphQL query to retrieve next entry args from node.
-// @TODO: Query `nextEntryArgs` is deprecated and will be replaced by `nextArgs` soon
 export const GQL_NEXT_ARGS = gql`
   query NextArgs($publicKey: String!, $viewId: String) {
-    nextEntryArgs(publicKey: $publicKey, documentId: $viewId) {
+    nextArgs(publicKey: $publicKey, viewId: $viewId) {
       logId
       seqNum
       backlink
@@ -42,10 +41,9 @@ type PublishVariables = {
 // GraphQL mutation to publish an entry and retrieve arguments for encoding the
 // next operation on the same document (those are currently not used to update
 // the next entry arguments cache).
-// @TODO: Query `publishEntry` is deprecated and will be replaced by `publish` soon
 export const GQL_PUBLISH = gql`
   mutation Publish($entry: String!, $operation: String!) {
-    publishEntry(entry: $entry, operation: $operation) {
+    publish(entry: $entry, operation: $operation) {
       logId
       seqNum
       backlink
@@ -145,7 +143,7 @@ export class Session {
   /**
    * Return arguments for constructing the next entry given author and schema.
    *
-   * This uses the cache set through `Session._setNextEntryArgs`.
+   * This uses the cache set through `Session._setnextArgs`.
    *
    * @param publicKey public key of the author
    * @param viewId optional document view id
@@ -176,8 +174,8 @@ export class Session {
 
     try {
       const data = await this.client.request(GQL_NEXT_ARGS, variables);
-      // @TODO: Query `nextEntryArgs` is deprecated and will be replaced by `nextArgs` soon
-      const nextArgs = data.nextEntryArgs;
+      // @TODO: Query `nextArgs` is deprecated and will be replaced by `nextArgs` soon
+      const nextArgs = data.nextArgs;
       log('request nextArgs', nextArgs);
       return nextArgs;
     } catch (err) {
@@ -217,12 +215,12 @@ export class Session {
 
     try {
       const data = await this.client.request(GQL_PUBLISH, variables);
-      log('request publishEntry', data);
-      // @TODO: Query `publishEntry` is deprecated and will be replaced by `publish` soon
-      if (data?.publishEntry == null) {
-        throw new Error("Response doesn't contain field `publishEntry`");
+      log('request publish', data);
+      // @TODO: Query `publish` is deprecated and will be replaced by `publish` soon
+      if (data?.publish == null) {
+        throw new Error("Response doesn't contain field `publish`");
       }
-      return data.publishEntry;
+      return data.publish;
     } catch (err) {
       log('Error publishing entry');
       throw err;
