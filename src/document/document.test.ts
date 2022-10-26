@@ -56,11 +56,11 @@ describe('document', () => {
       // These are the fields for an update operation
       const fields = entryFixture(2).operation?.fields as Fields;
 
-      const previousOperations = entryFixture(2).operation
-        ?.previous_operations as string[];
+      const previous = entryFixture(2).operation
+        ?.previous as string[];
 
       const entryEncoded = await updateDocument(
-        previousOperations,
+        previous,
         fields,
         {
           keyPair,
@@ -84,10 +84,10 @@ describe('document', () => {
         .mockResolvedValue(entryArgsFixture(4));
       jest.spyOn(session, 'getNextArgs').mockImplementation(asyncFunctionMock);
 
-      const previousOperations = entryFixture(4).operation
-        ?.previous_operations as string[];
+      const previous = entryFixture(4).operation
+        ?.previous as string[];
 
-      const entryEncoded = await deleteDocument(previousOperations, {
+      const entryEncoded = await deleteDocument(previous, {
         keyPair,
         schema: schemaFixture(),
         session,

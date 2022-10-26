@@ -205,8 +205,8 @@ describe('Session', () => {
     const fields = entryFixture(2).operation?.fields as Fields;
 
     // These are the previous operations
-    const previousOperations = entryFixture(2).operation
-      ?.previous_operations as string[];
+    const previous = entryFixture(2).operation
+      ?.previous as string[];
 
     beforeEach(async () => {
       session = new Session('http://localhost:2020');
@@ -216,7 +216,7 @@ describe('Session', () => {
 
     it('handles valid arguments', async () => {
       expect(
-        await session.update(fields, previousOperations, {
+        await session.update(fields, previous, {
           schema: schemaFixture(),
         }),
       ).resolves;
@@ -224,7 +224,7 @@ describe('Session', () => {
       expect(
         await session
           .setSchema(schemaFixture())
-          .update(fields, previousOperations),
+          .update(fields, previous),
       ).resolves;
     });
 
@@ -244,8 +244,8 @@ describe('Session', () => {
     let session: Session;
 
     // These are the previous operations
-    const previousOperations = entryFixture(2).operation
-      ?.previous_operations as string[];
+    const previous = entryFixture(2).operation
+      ?.previous as string[];
 
     beforeEach(async () => {
       session = new Session('http://localhost:2020');
@@ -255,11 +255,11 @@ describe('Session', () => {
 
     it('handles valid arguments', async () => {
       expect(
-        session.delete(previousOperations, {
+        session.delete(previous, {
           schema: schemaFixture(),
         }),
       ).resolves;
-      expect(session.setSchema(schemaFixture()).delete(previousOperations))
+      expect(session.setSchema(schemaFixture()).delete(previous))
         .resolves;
     });
 
@@ -271,7 +271,7 @@ describe('Session', () => {
 
       expect(
         // @ts-ignore: We deliberately use the API wrong here
-        session.delete(previousOperations),
+        session.delete(previous),
       ).rejects.toThrow();
     });
   });

@@ -277,7 +277,7 @@ export class Session {
    *
    * @param documentId id of the document we update, this is the id of the root `create` operation
    * @param fields application data to publish with the new entry, needs to match schema
-   * @param previousOperations array of operation ids identifying the tips of all currently un-merged branches in the document graph
+   * @param previous array of operation ids identifying the tips of all currently un-merged branches in the document graph
    * @param options optional config object:
    * @param options.keyPair will be used to sign the new entry
    * @param options.schema hex-encoded schema id
@@ -286,20 +286,20 @@ export class Session {
    * const operationFields = {
    *   message: 'ahoy',
    * };
-   * const previousOperations = [
+   * const previous = [
    *   '00203341c9dd226525886ee77c95127cd12f74366703e02f9b48f3561a9866270f07',
    * ];
    * await new Session(endpoint)
    *   .setKeyPair(keyPair)
-   *   .update(documentId, operationFields, previousOperations, { schema });
+   *   .update(documentId, operationFields, previous, { schema });
    */
   async update(
     fields: Fields,
-    previousOperations: string[],
+    previous: string[],
     options?: Partial<Context>,
   ): Promise<Session> {
     // We should validate the data against the schema here too eventually
-    if (!previousOperations) {
+    if (!previous) {
       throw new Error('Previous view id must be provided');
     }
 
@@ -307,13 +307,13 @@ export class Session {
       throw new Error('Operation fields must be provided');
     }
 
-    log('update document wyth view ', previousOperations, fields);
+    log('update document wyth view ', previous, fields);
     const mergedOptions = {
       schema: options?.schema || this.schema,
       keyPair: options?.keyPair || this.keyPair,
       session: this,
     };
-    updateDocument(previousOperations, fields, mergedOptions);
+    updateDocument(previous, fields, mergedOptions);
 
     return this;
   }
@@ -327,34 +327,34 @@ export class Session {
    * Caches arguments for creating the next entry of this schema in the given session.
    *
    * @param documentId id of the document we delete, this is the hash of the root `create` entry
-   * @param previousOperations array of operation ids identifying the tips of all currently un-merged branches in the document graph
+   * @param previous array of operation ids identifying the tips of all currently un-merged branches in the document graph
    * @param options optional config object:
    * @param options.keyPair will be used to sign the new entry
    * @param options.schema hex-encoded schema id
    * @example
    * const documentId = '00200cf84048b0798942deba7b1b9fcd77ca72876643bd3fedfe612d4c6fb60436be';
-   * const previousOperations = [
+   * const previous = [
    *   '00203341c9dd226525886ee77c95127cd12f74366703e02f9b48f3561a9866270f07',
    * ];
    * await new Session(endpoint)
    *   .setKeyPair(keyPair)
-   *   .delete(documentId, previousOperations, { schema });
+   *   .delete(documentId, previous, { schema });
    */
   async delete(
-    previousOperations: string[],
+    previous: string[],
     options?: Partial<Context>,
   ): Promise<Session> {
-    if (!previousOperations) {
+    if (!previous) {
       throw new Error('Previous view id must be provided');
     }
 
-    log('delete document with view ', previousOperations);
+    log('delete document with view ', previous);
     const mergedOptions = {
       schema: options?.schema || this.schema,
       keyPair: options?.keyPair || this.keyPair,
       session: this,
     };
-    deleteDocument(previousOperations, mergedOptions);
+    deleteDocument(previous, mergedOptions);
 
     return this;
   }

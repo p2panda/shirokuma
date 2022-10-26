@@ -55,7 +55,7 @@
             "action": "update",
             "schema": "venue_0020c65567ae37efea293e34a9c7d13f8f2bf23dbdc3b5c7b9ab46293111c48fc78b",
             "version": 1,
-            "previous_operations": [
+            "previous": [
               "00201c221b573b1e0c67c5e2c624a93419774cdf46b3d62414c44a698df1237b1c16"
             ],
             "fields": {
@@ -66,7 +66,7 @@
             "action": "update",
             "schema": "venue_0020c65567ae37efea293e34a9c7d13f8f2bf23dbdc3b5c7b9ab46293111c48fc78b",
             "version": 1,
-            "previous_operations": [
+            "previous": [
               "0020b7188ef505c499bf6d2d4a121e0535285fd444105b3d0b141429880bbb6cf31b"
             ],
             "fields": {
@@ -77,7 +77,7 @@
             "action": "delete",
             "schema": "venue_0020c65567ae37efea293e34a9c7d13f8f2bf23dbdc3b5c7b9ab46293111c48fc78b",
             "version": 1,
-            "previous_operations": [
+            "previous": [
               "0020a93a4c8b92b4c4e15bd38703a806015bc9f1e72d93e577a29ed73b09bcf9a2b5"
             ]
           }

@@ -48,12 +48,12 @@ export const createDocument = async (
  * Returns the encoded entry that was created.
  */
 export const updateDocument = async (
-  previousOperations: string[],
+  previous: string[],
   fields: Fields,
   { keyPair, schema, session }: Context,
 ): Promise<string> => {
   log(`Updating document view`, {
-    previousOperations,
+    previous,
     fields,
   });
 
@@ -63,7 +63,7 @@ export const updateDocument = async (
   const encodedOperation = encodeOperation({
     action: 'update',
     schemaId: schema,
-    previousOperations,
+    previous,
     fields: operationFields,
   });
 
@@ -74,7 +74,7 @@ export const updateDocument = async (
       schema,
       session,
     },
-    previousOperations,
+    previous,
   );
 
   return entryEncoded;
@@ -86,15 +86,15 @@ export const updateDocument = async (
  * Returns the encoded entry that was created.
  */
 export const deleteDocument = async (
-  previousOperations: string[],
+  previous: string[],
   { keyPair, schema, session }: Context,
 ): Promise<string> => {
-  log('Deleting document with view ', { previousOperations });
+  log('Deleting document with view ', { previous });
 
   const encodedOperation = encodeOperation({
     action: 'delete',
     schemaId: schema,
-    previousOperations,
+    previous,
   });
 
   const encodedEntry = await signPublishEntry(
@@ -104,7 +104,7 @@ export const deleteDocument = async (
       schema,
       session,
     },
-    previousOperations,
+    previous,
   );
 
   return encodedEntry;
