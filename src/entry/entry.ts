@@ -16,7 +16,7 @@ const log = debug('shirokuma:entry');
  * Returns the encoded entry.
  */
 export const signPublishEntry = async (
-  operationEncoded: string,
+  operation: string,
   { keyPair, session }: Context,
   viewId?: string[],
 ): Promise<string> => {
@@ -32,17 +32,17 @@ export const signPublishEntry = async (
     nextArgs,
   });
 
-  const entryEncoded = signAndEncodeEntry(
+  const entry = signAndEncodeEntry(
     {
       ...nextArgs,
-      operation: operationEncoded,
+      operation,
     },
     keyPair,
   );
-  const entryHash = generateHash(entryEncoded);
+  const entryHash = generateHash(entry);
   log('Signed and encoded entry');
 
-  const publishNextArgs = await session.publish(entryEncoded, operationEncoded);
+  const publishNextArgs = await session.publish(entry, operation);
   log('Published entry');
 
   // Cache next entry args for next publish. Use the entry hash as the document
@@ -50,5 +50,5 @@ export const signPublishEntry = async (
   session.setNextArgs(publicKey, entryHash, publishNextArgs);
   log('Cached next arguments');
 
-  return entryEncoded;
+  return entry;
 };
