@@ -294,27 +294,26 @@ export class Session {
    *   .update(documentId, operationFields, previousOperations, { schema });
    */
   async update(
-    documentId: string,
     fields: Fields,
     previousOperations: string[],
     options?: Partial<Context>,
   ): Promise<Session> {
     // We should validate the data against the schema here too eventually
-    if (!documentId) {
-      throw new Error('Document id must be provided');
+    if (!previousOperations) {
+      throw new Error('Previous view id must be provided');
     }
 
     if (!fields) {
       throw new Error('Operation fields must be provided');
     }
 
-    log('update document', documentId, fields);
+    log('update document wyth view ', previousOperations, fields);
     const mergedOptions = {
       schema: options?.schema || this.schema,
       keyPair: options?.keyPair || this.keyPair,
       session: this,
     };
-    updateDocument(documentId, previousOperations, fields, mergedOptions);
+    updateDocument(previousOperations, fields, mergedOptions);
 
     return this;
   }
@@ -342,21 +341,20 @@ export class Session {
    *   .delete(documentId, previousOperations, { schema });
    */
   async delete(
-    documentId: string,
     previousOperations: string[],
     options?: Partial<Context>,
   ): Promise<Session> {
-    if (!documentId) {
-      throw new Error('Document id must be provided');
+    if (!previousOperations) {
+      throw new Error('Previous view id must be provided');
     }
 
-    log('delete document', documentId);
+    log('delete document with view ', previousOperations);
     const mergedOptions = {
       schema: options?.schema || this.schema,
       keyPair: options?.keyPair || this.keyPair,
       session: this,
     };
-    deleteDocument(documentId, previousOperations, mergedOptions);
+    deleteDocument(previousOperations, mergedOptions);
 
     return this;
   }

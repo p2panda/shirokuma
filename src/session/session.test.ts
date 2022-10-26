@@ -204,9 +204,6 @@ describe('Session', () => {
     // These are the fields for an update operation
     const fields = entryFixture(2).operation?.fields as Fields;
 
-    // This is the document id
-    const documentId = documentIdFixture();
-
     // These are the previous operations
     const previousOperations = entryFixture(2).operation
       ?.previous_operations as string[];
@@ -219,7 +216,7 @@ describe('Session', () => {
 
     it('handles valid arguments', async () => {
       expect(
-        await session.update(documentId, fields, previousOperations, {
+        await session.update(fields, previousOperations, {
           schema: schemaFixture(),
         }),
       ).resolves;
@@ -227,31 +224,24 @@ describe('Session', () => {
       expect(
         await session
           .setSchema(schemaFixture())
-          .update(documentId, fields, previousOperations),
+          .update(fields, previousOperations),
       ).resolves;
     });
 
     it('throws when missing a required parameter', async () => {
       await expect(
         // @ts-ignore: We deliberately use the API wrong here
-        session.update(null, fields, { schema: schemaFixture() }),
+        session.update(null, { schema: schemaFixture() }),
       ).rejects.toThrow();
       await expect(
         // @ts-ignore: We deliberately use the API wrong here
-        session.update(documentId, null, { schema: schemaFixture() }),
-      ).rejects.toThrow();
-      await expect(
-        // @ts-ignore: We deliberately use the API wrong here
-        session.update(documentId, fields),
+        session.update(fields),
       ).rejects.toThrow();
     });
   });
 
   describe('delete', () => {
     let session: Session;
-
-    // This is the document id that can be deleted
-    const documentId = documentIdFixture();
 
     // These are the previous operations
     const previousOperations = entryFixture(2).operation
@@ -265,15 +255,12 @@ describe('Session', () => {
 
     it('handles valid arguments', async () => {
       expect(
-        session.delete(documentId, previousOperations, {
+        session.delete(previousOperations, {
           schema: schemaFixture(),
         }),
       ).resolves;
-      expect(
-        session
-          .setSchema(schemaFixture())
-          .delete(documentId, previousOperations),
-      ).resolves;
+      expect(session.setSchema(schemaFixture()).delete(previousOperations))
+        .resolves;
     });
 
     it('throws when missing a required parameter', async () => {
@@ -284,7 +271,7 @@ describe('Session', () => {
 
       expect(
         // @ts-ignore: We deliberately use the API wrong here
-        session.delete(documentId),
+        session.delete(previousOperations),
       ).rejects.toThrow();
     });
   });

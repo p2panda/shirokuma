@@ -18,16 +18,17 @@ const log = debug('shirokuma:entry');
 export const signPublishEntry = async (
   operationEncoded: string,
   { keyPair, session }: Context,
-  documentId?: string,
+  viewId?: string[],
 ): Promise<string> => {
   const publicKey = keyPair.publicKey();
+  const viewIdStr = viewId ? viewId.join('_') : undefined;
 
   log('Signing and publishing entry');
-  const nextArgs = await session.getNextArgs(publicKey, documentId);
+  const nextArgs = await session.getNextArgs(publicKey, viewIdStr);
 
   log('Retrieved next args for', {
     publicKey,
-    documentId,
+    viewId,
     nextArgs,
   });
 
@@ -46,7 +47,7 @@ export const signPublishEntry = async (
 
   // Cache next entry args for next publish. Use the entry hash as the document
   // id for CREATE operations.
-  session.setNextArgs(publicKey, documentId || entryHash, publishNextArgs);
+  session.setNextArgs(publicKey, entryHash, publishNextArgs);
   log('Cached next arguments');
 
   return entryEncoded;
