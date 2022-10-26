@@ -269,20 +269,18 @@ export class Session {
    * Signs and publishes an UPDATE operation for the given application data and
    * matching schema.
    *
-   * The document to be updated is referenced by its document id, which is the
-   * operation id of that document's initial `CREATE` operation.
+   * The document to be updated is identified by the `previous` parameter which contains
+   * the most recent known document view id.
    *
    * Caches arguments for creating the next entry of this schema in the given
    * session.
    *
-   * @param documentId id of the document we update, this is the id of the root `create` operation
    * @param fields application data to publish with the new entry, needs to match schema
    * @param previous array of operation ids identifying the tips of all currently un-merged branches in the document graph
    * @param options optional config object:
    * @param options.keyPair will be used to sign the new entry
    * @param options.schema hex-encoded schema id
    * @example
-   * const documentId = '00200cf84048b0798942deba7b1b9fcd77ca72876643bd3fedfe612d4c6fb60436be';
    * const operationFields = {
    *   message: 'ahoy',
    * };
@@ -291,7 +289,7 @@ export class Session {
    * ];
    * await new Session(endpoint)
    *   .setKeyPair(keyPair)
-   *   .update(documentId, operationFields, previous, { schema });
+   *   .update(operationFields, previous, { schema });
    */
   async update(
     fields: Fields,
@@ -321,24 +319,22 @@ export class Session {
   /**
    * Signs and publishes a DELETE operation for the given schema.
    *
-   * The document to be deleted is referenced by its document id, which is the
-   * operation id of that document's initial `CREATE` operation.
+   * The document to be deleted is identified by the `previous` parameter
+   * which contains the most recent known document view id.
    *
    * Caches arguments for creating the next entry of this schema in the given session.
    *
-   * @param documentId id of the document we delete, this is the hash of the root `create` entry
    * @param previous array of operation ids identifying the tips of all currently un-merged branches in the document graph
    * @param options optional config object:
    * @param options.keyPair will be used to sign the new entry
    * @param options.schema hex-encoded schema id
    * @example
-   * const documentId = '00200cf84048b0798942deba7b1b9fcd77ca72876643bd3fedfe612d4c6fb60436be';
    * const previous = [
    *   '00203341c9dd226525886ee77c95127cd12f74366703e02f9b48f3561a9866270f07',
    * ];
    * await new Session(endpoint)
    *   .setKeyPair(keyPair)
-   *   .delete(documentId, previous, { schema });
+   *   .delete(previous, { schema });
    */
   async delete(
     previous: string[],

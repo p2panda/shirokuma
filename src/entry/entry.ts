@@ -45,8 +45,7 @@ export const signPublishEntry = async (
   const publishNextArgs = await session.publish(entry, operation);
   log('Published entry');
 
-  // Cache next entry args for next publish. Use the entry hash as the document
-  // id for CREATE operations.
+  // Cache next entry args for next publish.
   session.setNextArgs(publicKey, entryHash, publishNextArgs);
   log('Cached next arguments');
 
