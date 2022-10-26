@@ -56,18 +56,13 @@ describe('document', () => {
       // These are the fields for an update operation
       const fields = entryFixture(2).operation?.fields as Fields;
 
-      const previous = entryFixture(2).operation
-        ?.previous as string[];
+      const previous = entryFixture(2).operation?.previous as string[];
 
-      const entryEncoded = await updateDocument(
-        previous,
-        fields,
-        {
-          keyPair,
-          schema: schemaFixture(),
-          session,
-        },
-      );
+      const entryEncoded = await updateDocument(previous, fields, {
+        keyPair,
+        schema: schemaFixture(),
+        session,
+      });
 
       expect(entryEncoded).toEqual(encodedEntryFixture(2).entryBytes);
     });
@@ -84,8 +79,7 @@ describe('document', () => {
         .mockResolvedValue(entryArgsFixture(4));
       jest.spyOn(session, 'getNextArgs').mockImplementation(asyncFunctionMock);
 
-      const previous = entryFixture(4).operation
-        ?.previous as string[];
+      const previous = entryFixture(4).operation?.previous as string[];
 
       const entryEncoded = await deleteDocument(previous, {
         keyPair,

@@ -205,8 +205,7 @@ describe('Session', () => {
     const fields = entryFixture(2).operation?.fields as Fields;
 
     // These are the previous operations
-    const previous = entryFixture(2).operation
-      ?.previous as string[];
+    const previous = entryFixture(2).operation?.previous as string[];
 
     beforeEach(async () => {
       session = new Session('http://localhost:2020');
@@ -221,11 +220,8 @@ describe('Session', () => {
         }),
       ).resolves;
 
-      expect(
-        await session
-          .setSchema(schemaFixture())
-          .update(fields, previous),
-      ).resolves;
+      expect(await session.setSchema(schemaFixture()).update(fields, previous))
+        .resolves;
     });
 
     it('throws when missing a required parameter', async () => {
@@ -244,8 +240,7 @@ describe('Session', () => {
     let session: Session;
 
     // These are the previous operations
-    const previous = entryFixture(2).operation
-      ?.previous as string[];
+    const previous = entryFixture(2).operation?.previous as string[];
 
     beforeEach(async () => {
       session = new Session('http://localhost:2020');
@@ -259,8 +254,7 @@ describe('Session', () => {
           schema: schemaFixture(),
         }),
       ).resolves;
-      expect(session.setSchema(schemaFixture()).delete(previous))
-        .resolves;
+      expect(session.setSchema(schemaFixture()).delete(previous)).resolves;
     });
 
     it('throws when missing a required parameter', async () => {
