@@ -9,8 +9,15 @@
   "exports": {
     ".": {
       "types": "./lib/cjs/index.d.ts",
+      "node": "./lib/node/index.cjs",
       "import": "./lib/esm/index.js",
       "default": "./lib/cjs/index.cjs"
+    },
+    "./slim": {
+      "types": "./lib/cjs-slim/index.d.ts",
+      "node": "./lib/node/index.cjs",
+      "import": "./lib/esm-slim/index.js",
+      "default": "./lib/cjs-slim/index.cjs"
     },
     "./package.json": "./package.json"
   },
@@ -19,7 +26,7 @@
     "clear": "rimraf ./lib",
     "docs": "typedoc src/index.ts",
     "lint": "eslint --ext .ts .",
-    "rollup": "rollup -c",
+    "rollup": "rollup -c rollup.config.ts --configPlugin typescript",
     "test": "cross-env NODE_ENV=development jest --coverage=$npm_config_coverage",
     "test:watch": "nodemon --watch '../p2panda-rs/src/*' --watch './src/*' --exec 'npm test' --ext js,ts,json",
     "typecheck": "tsc --noEmit"
@@ -49,6 +56,7 @@
     "@babel/core": "^7.20.12",
     "@babel/preset-env": "^7.20.2",
     "@babel/register": "^7.18.9",
+    "@rollup/plugin-alias": "^4.0.3",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-commonjs": "^24.0.1",
     "@rollup/plugin-json": "^6.0.0",
@@ -74,6 +82,7 @@
     "rollup-plugin-dts": "^5.2.0",
     "ts-jest": "^29.0.5",
     "ts-node": "^10.9.1",
+    "tslib": "^2.5.0",
     "typedoc": "^0.23.25",
     "typescript": "^4.9.5"
   },
