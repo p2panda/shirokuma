@@ -3,8 +3,10 @@
   "compilerOptions": {
     "baseUrl": ".",
     "outDir": "./lib",
-    "resolveJsonModule": true,
+    "module": "es2022",
     "lib": ["dom"],
+    "resolveJsonModule": true,
+    "sourceMap": true,
     "types": ["jest", "node"]
   }
 }
