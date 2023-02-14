@@ -1,128 +1,83 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+import { GraphQLClient } from 'graphql-request';
 
-import debug from 'debug';
-import { gql, GraphQLClient } from 'graphql-request';
+import { KeyPair } from '../identity';
 
-import { createDocument, deleteDocument, updateDocument } from '../document';
+import type { SchemaId } from '../types';
 
-import type { KeyPair } from 'p2panda-js';
-import type { NextArgs, Fields, SchemaId } from '../types';
-
-const log = debug('shirokuma:session');
-
-export type Context = {
-  keyPair: KeyPair;
-  schema: SchemaId;
-  session: Session;
-};
-
-type NextArgsVariables = {
-  publicKey: string;
-  viewId?: string;
-};
-
-// GraphQL query to retrieve next entry args from node.
-export const GQL_NEXT_ARGS = gql`
-  query NextArgs($publicKey: String!, $viewId: String) {
-    nextArgs(publicKey: $publicKey, viewId: $viewId) {
-      logId
-      seqNum
-      backlink
-      skiplink
-    }
-  }
-`;
-
-type PublishVariables = {
-  entry: string;
-  operation: string;
-};
-
-// GraphQL mutation to publish an entry and retrieve arguments for encoding the
-// next operation on the same document (those are currently not used to update
-// the next entry arguments cache).
-export const GQL_PUBLISH = gql`
-  mutation Publish($entry: String!, $operation: String!) {
-    publish(entry: $entry, operation: $operation) {
-      logId
-      seqNum
-      backlink
-      skiplink
-    }
-  }
-`;
-
-/**
- * Communicate with the p2panda network through a `Session` instance.
- *
- * `Session` provides a high-level interface to create data in the p2panda
- * network by creating, updating and deleting documents following data schemas.
- * It also provides a low-level API for directly accessing and creating
- * entries on the Bamboo append-only log structure.
- *
- * A session is configured with the URL of a p2panda node, which may be running
- * locally or on a remote machine. It is possible to set a fixed key pair
- * and/or data schema for a session by calling `setKeyPair()` and `setSchema()`
- * or you can also configure these through the `options` parameter of
- * methods.
- */
 export class Session {
-  // Address of a p2panda node that we can connect to
-  endpoint: string;
+  /**
+   * Address of a p2panda node that we can connect to.
+   */
+  readonly endpoint: string;
 
-  // A GraphQL client connected to the configured endpoint
-  client: GraphQLClient;
-
-  // Cached arguments for the next entry
-  private nextArgs: { [cacheKey: string]: NextArgs } = {};
+  /**
+   * A GraphQL client connected to the configured endpoint.
+   */
+  readonly client: GraphQLClient;
 
   constructor(endpoint: Session['endpoint']) {
-    if (endpoint == null || endpoint === '') {
+    if (!endpoint) {
       throw new Error('Missing `endpoint` parameter for creating a session');
     }
+
     this.endpoint = endpoint;
     this.client = new GraphQLClient(endpoint);
   }
 
-  private _schema: SchemaId | null = null;
+  /**
+   * Globally configured schema id which is used as a default for all requests.
+   */
+  #schemaId: SchemaId | null = null;
 
   /**
-   * Return currently configured schema.
+   * Returns currently configured schema id.
    *
-   * Throws if no schema is configured.
+   * Throws if no schema id is configured.
    */
-  get schema(): SchemaId {
-    if (!this._schema) {
+  get schemaId(): SchemaId {
+    if (!this.#schemaId) {
       throw new Error(
-        'Configure a schema with `session.schema()` or with the `options` ' +
+        'Configure a schema id with `session.schemaId()` or with the `options` ' +
           'parameter on methods.',
       );
     }
-    return this._schema;
+
+    return this.#schemaId;
   }
 
   /**
-   * Set a fixed schema for this session, which will be used if no other schema
-   * is defined through a methods `options` parameter.
+   * Set a schema id for this whole session.
    *
-   * @param val schema id
-   * @returns Session
+   * This value will be used if no other schema id is defined through a methods
+   * `options` parameter.
+   *
+   * @param id schema id
+   * @returns Session instance
    */
-  setSchema(val: SchemaId): Session {
-    this._schema = val;
+  setSchemaId(id: SchemaId): Session {
+    this.#schemaId = id;
     return this;
   }
 
-  private _keyPair: KeyPair | null = null;
+  /**
+   * Globally configured key pair which is used as a default for all requests.
+   */
+  #keyPair: KeyPair | null = null;
 
+  /**
+   * Returns currently configured key pair.
+   *
+   * Throws if no key pair is configured.
+   */
   get keyPair(): KeyPair {
-    if (!this._keyPair) {
+    if (!this.#keyPair) {
       throw new Error(
         'Configure a key pair with `session.keyPair()` or with the `options` ' +
           'parameter on methods.',
       );
     }
-    return this._keyPair;
+
+    return this.#keyPair;
   }
 
   /**
@@ -132,234 +87,11 @@ export class Session {
    *
    * This does not check the integrity or type of the supplied key pair!
    *
-   * @param val key pair instance generated using the `KeyPair` class.
-   * @returns key pair instance
+   * @param keyPair key pair instance generated using the `KeyPair` class.
+   * @returns Session instance
    */
-  setKeyPair(val: KeyPair): Session {
-    this._keyPair = val;
+  setKeyPair(keyPair: KeyPair): Session {
+    this.#keyPair = keyPair;
     return this;
-  }
-
-  /**
-   * Return arguments for constructing the next entry given author and schema.
-   *
-   * This uses the cache set through `Session._setnextArgs`.
-   *
-   * @param publicKey public key of the author
-   * @param viewId optional document view id
-   * @returns an `EntryArgs` object
-   */
-  async getNextArgs(publicKey: string, viewId?: string): Promise<NextArgs> {
-    if (!publicKey) {
-      throw new Error("Author's public key must be provided");
-    }
-
-    const variables: NextArgsVariables = {
-      publicKey,
-    };
-
-    // Use cache only when viewId is set
-    if (viewId) {
-      const cacheKey = `${publicKey}/${viewId}`;
-      const cachedValue = this.nextArgs[cacheKey];
-
-      if (cachedValue) {
-        delete this.nextArgs[cacheKey];
-        log('request nextArgs [cached]', cachedValue);
-        return cachedValue;
-      }
-
-      variables.viewId = viewId;
-    }
-
-    try {
-      const data = await this.client.request(GQL_NEXT_ARGS, variables);
-      // @TODO: Query `nextArgs` is deprecated and will be replaced by `nextArgs` soon
-      const nextArgs = data.nextArgs;
-      log('request nextArgs', nextArgs);
-      return nextArgs;
-    } catch (err) {
-      log('Error fetching nextArgs');
-      throw err;
-    }
-  }
-
-  /**
-   * Cache next entry args for a given author and document id.
-   *
-   * @param publicKey public key of the author
-   * @param viewId document id
-   * @param nextArgs an object with entry arguments
-   */
-  setNextArgs(publicKey: string, viewId: string, nextArgs: NextArgs): void {
-    const cacheKey = `${publicKey}/${viewId}`;
-    this.nextArgs[cacheKey] = nextArgs;
-  }
-
-  /**
-   * Publish an encoded entry and operation.
-   *
-   * @param entry
-   * @param operation
-   * @returns next entry arguments
-   */
-  async publish(entry: string, operation: string): Promise<NextArgs> {
-    if (!entry || !operation) {
-      throw new Error('Encoded entry and operation must be provided');
-    }
-
-    const variables: PublishVariables = {
-      entry,
-      operation,
-    };
-
-    try {
-      const data = await this.client.request(GQL_PUBLISH, variables);
-      log('request publish', data);
-      // @TODO: Query `publish` is deprecated and will be replaced by `publish` soon
-      if (data?.publish == null) {
-        throw new Error("Response doesn't contain field `publish`");
-      }
-      return data.publish;
-    } catch (err) {
-      log('Error publishing entry');
-      throw err;
-    }
-  }
-
-  // Document operations
-
-  /**
-   * Signs and publishes a CREATE operation for the given application data and
-   * matching schema.
-   *
-   * Caches arguments for creating the next entry of this document in the given
-   * session.
-   *
-   * @param fields application data to publish with the new entry, needs to match schema
-   * @param options optional config object:
-   * @param options.keyPair will be used to sign the new entry
-   * @param options.schema hex-encoded schema id
-   * @example
-   * const operationFields = {
-   *   message: 'ahoy'
-   * };
-   * await new Session(endpoint)
-   *   .setKeyPair(keyPair)
-   *   .create(operationFields, { schema });
-   */
-  async create(fields: Fields, options?: Partial<Context>): Promise<Session> {
-    // We should validate the data against the schema here too eventually
-    if (!fields) {
-      throw new Error('Operation fields must be provided');
-    }
-
-    log('create document', fields);
-    const mergedOptions = {
-      schema: options?.schema || this.schema,
-      keyPair: options?.keyPair || this.keyPair,
-      session: this,
-    };
-    createDocument(fields, mergedOptions);
-
-    return this;
-  }
-
-  /**
-   * Signs and publishes an UPDATE operation for the given application data and
-   * matching schema.
-   *
-   * The document to be updated is identified by the `previous` parameter which contains
-   * the most recent known document view id.
-   *
-   * Caches arguments for creating the next entry of this schema in the given
-   * session.
-   *
-   * @param fields application data to publish with the new entry, needs to match schema
-   * @param previous array of operation ids identifying the tips of all currently un-merged branches in the document graph
-   * @param options optional config object:
-   * @param options.keyPair will be used to sign the new entry
-   * @param options.schema hex-encoded schema id
-   * @example
-   * const operationFields = {
-   *   message: 'ahoy',
-   * };
-   * const previous = [
-   *   '00203341c9dd226525886ee77c95127cd12f74366703e02f9b48f3561a9866270f07',
-   * ];
-   * await new Session(endpoint)
-   *   .setKeyPair(keyPair)
-   *   .update(operationFields, previous, { schema });
-   */
-  async update(
-    fields: Fields,
-    previous: string[],
-    options?: Partial<Context>,
-  ): Promise<Session> {
-    // We should validate the data against the schema here too eventually
-    if (!previous) {
-      throw new Error('Previous view id must be provided');
-    }
-
-    if (!fields) {
-      throw new Error('Operation fields must be provided');
-    }
-
-    log('update document wyth view ', previous, fields);
-    const mergedOptions = {
-      schema: options?.schema || this.schema,
-      keyPair: options?.keyPair || this.keyPair,
-      session: this,
-    };
-    updateDocument(previous, fields, mergedOptions);
-
-    return this;
-  }
-
-  /**
-   * Signs and publishes a DELETE operation for the given schema.
-   *
-   * The document to be deleted is identified by the `previous` parameter
-   * which contains the most recent known document view id.
-   *
-   * Caches arguments for creating the next entry of this schema in the given session.
-   *
-   * @param previous array of operation ids identifying the tips of all currently un-merged branches in the document graph
-   * @param options optional config object:
-   * @param options.keyPair will be used to sign the new entry
-   * @param options.schema hex-encoded schema id
-   * @example
-   * const previous = [
-   *   '00203341c9dd226525886ee77c95127cd12f74366703e02f9b48f3561a9866270f07',
-   * ];
-   * await new Session(endpoint)
-   *   .setKeyPair(keyPair)
-   *   .delete(previous, { schema });
-   */
-  async delete(
-    previous: string[],
-    options?: Partial<Context>,
-  ): Promise<Session> {
-    if (!previous) {
-      throw new Error('Previous view id must be provided');
-    }
-
-    log('delete document with view ', previous);
-    const mergedOptions = {
-      schema: options?.schema || this.schema,
-      keyPair: options?.keyPair || this.keyPair,
-      session: this,
-    };
-    deleteDocument(previous, mergedOptions);
-
-    return this;
-  }
-
-  toString(): string {
-    const keyPairStr = this._keyPair
-      ? ` key pair ${this._keyPair.publicKey().slice(-8)}`
-      : '';
-    const schemaStr = this._schema ? ` schema ${this.schema.slice(-8)}` : '';
-    return `<Session ${this.endpoint}${keyPairStr}${schemaStr}>`;
   }
 }
