@@ -18,8 +18,8 @@ import {
 } from '../../test/fixtures';
 
 /* Set up GraphQL server mock. It will respond to:
- * - query `nextEntryArgs`: always returns entry args for sequence number 6
- * - mutation `publishEntry` always returns a response as if sequence
+ * - query `nextArgs`: always returns entry args for sequence number 6
+ * - mutation `publish` always returns a response as if sequence
  *   number 5 had been published. */
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 jest.mock('node-fetch', () => require('fetch-mock-jest').sandbox());
@@ -38,7 +38,7 @@ fetchMock
     },
     {
       data: {
-        nextEntryArgs: entryArgsFixture(5),
+        nextArgs: entryArgsFixture(5),
       },
     },
   )
@@ -50,7 +50,7 @@ fetchMock
     },
     {
       data: {
-        publishEntry: entryArgsFixture(5),
+        publish: entryArgsFixture(5),
       },
     },
   );
@@ -123,7 +123,7 @@ describe('Session', () => {
     });
   });
 
-  describe('get/setNextEntryArgs', () => {
+  describe('get/setnextArgs', () => {
     it('returns next entry args from node', async () => {
       const session = new Session('http://localhost:2020');
 
@@ -204,12 +204,8 @@ describe('Session', () => {
     // These are the fields for an update operation
     const fields = entryFixture(2).operation?.fields as Fields;
 
-    // This is the document id
-    const documentId = documentIdFixture();
-
     // These are the previous operations
-    const previousOperations = entryFixture(2).operation
-      ?.previous_operations as string[];
+    const previous = entryFixture(2).operation?.previous as string[];
 
     beforeEach(async () => {
       session = new Session('http://localhost:2020');
@@ -219,30 +215,23 @@ describe('Session', () => {
 
     it('handles valid arguments', async () => {
       expect(
-        await session.update(documentId, fields, previousOperations, {
+        await session.update(fields, previous, {
           schema: schemaFixture(),
         }),
       ).resolves;
 
-      expect(
-        await session
-          .setSchema(schemaFixture())
-          .update(documentId, fields, previousOperations),
-      ).resolves;
+      expect(await session.setSchema(schemaFixture()).update(fields, previous))
+        .resolves;
     });
 
     it('throws when missing a required parameter', async () => {
       await expect(
         // @ts-ignore: We deliberately use the API wrong here
-        session.update(null, fields, { schema: schemaFixture() }),
+        session.update(null, { schema: schemaFixture() }),
       ).rejects.toThrow();
       await expect(
         // @ts-ignore: We deliberately use the API wrong here
-        session.update(documentId, null, { schema: schemaFixture() }),
-      ).rejects.toThrow();
-      await expect(
-        // @ts-ignore: We deliberately use the API wrong here
-        session.update(documentId, fields),
+        session.update(fields),
       ).rejects.toThrow();
     });
   });
@@ -250,12 +239,8 @@ describe('Session', () => {
   describe('delete', () => {
     let session: Session;
 
-    // This is the document id that can be deleted
-    const documentId = documentIdFixture();
-
     // These are the previous operations
-    const previousOperations = entryFixture(2).operation
-      ?.previous_operations as string[];
+    const previous = entryFixture(2).operation?.previous as string[];
 
     beforeEach(async () => {
       session = new Session('http://localhost:2020');
@@ -265,15 +250,11 @@ describe('Session', () => {
 
     it('handles valid arguments', async () => {
       expect(
-        session.delete(documentId, previousOperations, {
+        session.delete(previous, {
           schema: schemaFixture(),
         }),
       ).resolves;
-      expect(
-        session
-          .setSchema(schemaFixture())
-          .delete(documentId, previousOperations),
-      ).resolves;
+      expect(session.setSchema(schemaFixture()).delete(previous)).resolves;
     });
 
     it('throws when missing a required parameter', async () => {
@@ -284,7 +265,7 @@ describe('Session', () => {
 
       expect(
         // @ts-ignore: We deliberately use the API wrong here
-        session.delete(documentId),
+        session.delete(previous),
       ).rejects.toThrow();
     });
   });
