@@ -10,5 +10,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 * Updates for breaking `p2panda-js` API changes [#4](https://github.com/p2panda/shirokuma/pull/4)
+* Update dependencies [#5](https://github.com/p2panda/shirokuma/pull/5)
 
 [unreleased]: https://github.com/p2panda/shirokuma/compare/...HEAD
