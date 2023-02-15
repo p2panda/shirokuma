@@ -53,7 +53,8 @@ export const GQL_PUBLISH = gql`
  * This uses the cache set through `Session._setnextArgs`.
  *
  * @param client GraphQLClient instance
- * @param variables Public key of author and optional document view id
+ * @param variables.publicKey public key of the author
+ * @param variables.viewId optional document view id
  * @returns `NextArgs` object
  */
 export async function nextArgs(
@@ -81,7 +82,8 @@ export async function nextArgs(
  * Publish an encoded entry and operation.
  *
  * @param client GraphQLClient instance
- * @param variables Encoded entry and operation
+ * @param variables.entry Encoded entry
+ * @param variables.operation Encoded operation
  * @returns `NextArgs` object
  */
 export async function publish(
