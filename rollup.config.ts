@@ -3,7 +3,6 @@
 import pluginAlias from '@rollup/plugin-alias';
 import pluginCommonJS from '@rollup/plugin-commonjs';
 import pluginDts from 'rollup-plugin-dts';
-import pluginJson from '@rollup/plugin-json';
 import pluginTerser from '@rollup/plugin-terser';
 import pluginTypeScript from '@rollup/plugin-typescript';
 import { nodeResolve as pluginNodeResolve } from '@rollup/plugin-node-resolve';
@@ -74,16 +73,19 @@ function getOutputs({ format, mode }: Config): OutputOptions[] {
   return result;
 }
 
-function getPlugins({ mode }: Config): Plugin[] {
+function getPlugins({ format, mode }: Config): Plugin[] {
   const result: Plugin[] = [];
 
-  // @TODO: Add comment
-  if (mode === 'node') {
-    result.push(pluginJson());
-  }
+  // Convert external CommonJS- to ES6 modules
+  result.push(
+    pluginCommonJS({
+      extensions: ['.js', '.ts'],
+    }),
+  );
 
-  // @TODO: Add comment
-  if (mode !== 'node') {
+  // In umd builds we're bundling the dependencies as well, we need this plugin
+  // here to help locating external dependencies
+  if (format === 'umd') {
     result.push(
       pluginNodeResolve({
         // Use the "browser" module resolutions in the dependencies' package.json
@@ -92,7 +94,11 @@ function getPlugins({ mode }: Config): Plugin[] {
     );
   }
 
-  // @TODO: Add comment
+  // Whenever we want to build a "slim" version of shirokuma we have to import
+  // the "slim" version of p2panda-js.
+  //
+  // The "slim" version does not contain the WebAssembly inlined (as a base64
+  // string) and is therefore smaller.
   if (mode === 'slim') {
     result.push(
       pluginAlias({
@@ -103,13 +109,6 @@ function getPlugins({ mode }: Config): Plugin[] {
 
   // Compile TypeScript source code to JavaScript
   result.push(pluginTypeScript());
-
-  // Convert CommonJS modules to ES6
-  result.push(
-    pluginCommonJS({
-      extensions: ['.js', '.ts'],
-    }),
-  );
 
   return result;
 }
@@ -126,7 +125,12 @@ function config({ format, mode }: Config): RollupOptions[] {
   // Determine plugins which will be used to process this build
   const plugins = getPlugins({ format, mode });
 
-  // Treat npm dependencies as external, except for UMD builds
+  // Treat all npm dependencies as external, we don't want to include them in
+  // our bundle.
+  //
+  // Only "umd" bundles contain all dependencies bundled as well. That's a
+  // shame, but we hope that this will account for the "quick" uses of
+  // shirokuma.
   const external = format === 'umd' ? [] : Object.keys(pkg.dependencies);
 
   // Package build
