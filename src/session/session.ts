@@ -1,8 +1,36 @@
 import { GraphQLClient } from 'graphql-request';
+import { generateHash, KeyPair } from 'p2panda-js';
 
-import { KeyPair } from '../identity';
+import { Cache } from '../cache';
+import {
+  createOperation,
+  deleteOperation,
+  updateOperation,
+} from '../operation';
+import { nextArgs, publish } from '../graphql';
 
-import type { SchemaId } from '../types';
+import type {
+  DocumentViewId,
+  EncodedEntry,
+  EncodedOperation,
+  Fields,
+  NextArgs,
+  PublicKey,
+  SchemaId,
+} from '../types';
+
+function getCacheKey(publicKey: PublicKey, viewId: DocumentViewId) {
+  return `${publicKey}/${viewId}`;
+}
+
+/**
+ * Configuration we can pass in into methods which will override the globally
+ * set configuration for that session for that method call.
+ */
+type Configuration = {
+  keyPair: KeyPair;
+  schemaId: SchemaId;
+};
 
 /**
  * Communicate with the p2panda network through a `Session` instance.
@@ -29,6 +57,11 @@ export class Session {
    */
   readonly client: GraphQLClient;
 
+  /**
+   * Internal cache to keep state required for creating Bamboo entries.
+   */
+  readonly cache: Cache<NextArgs>;
+
   constructor(endpoint: Session['endpoint']) {
     if (!endpoint) {
       throw new Error('Missing `endpoint` parameter for creating a session');
@@ -36,6 +69,7 @@ export class Session {
 
     this.endpoint = endpoint;
     this.client = new GraphQLClient(endpoint);
+    this.cache = new Cache();
   }
 
   /**
@@ -107,5 +141,145 @@ export class Session {
   setKeyPair(keyPair: KeyPair): Session {
     this.#keyPair = keyPair;
     return this;
+  }
+
+  async nextArgs(
+    publicKey: PublicKey,
+    viewId?: DocumentViewId,
+  ): Promise<NextArgs> {
+    if (!publicKey) {
+      throw new Error("Author's public key must be provided");
+    }
+
+    // Use cache only when viewId is set. If it is not set we need to determine
+    // the next free logId but we do not keep track of that currently, so let's
+    // ask the node!
+    if (viewId) {
+      const cacheKey = getCacheKey(publicKey, viewId);
+      const cachedValue = this.cache.get(cacheKey);
+
+      if (cachedValue) {
+        this.cache.remove(cacheKey);
+        return cachedValue;
+      }
+    }
+
+    const result = await nextArgs(this.client, {
+      publicKey,
+      viewId,
+    });
+
+    return result;
+  }
+
+  async publish(
+    entry: EncodedEntry,
+    operation: EncodedOperation,
+  ): Promise<DocumentViewId> {
+    if (!entry || !operation) {
+      throw new Error('Encoded entry and operation must be provided');
+    }
+
+    const nextArgs = await publish(this.client, { entry, operation });
+
+    const publicKey = this.keyPair.publicKey();
+    const localViewId = generateHash(entry);
+    const cacheKey = getCacheKey(publicKey, localViewId);
+    this.cache.insert(cacheKey, nextArgs);
+
+    return localViewId;
+  }
+
+  async create(
+    fields: Fields,
+    options?: Partial<Configuration>,
+  ): Promise<DocumentViewId> {
+    if (!fields) {
+      throw new Error('Fields must be provided');
+    }
+
+    const schemaId = options?.schemaId || this.schemaId;
+    const keyPair = options?.keyPair || this.keyPair;
+
+    const publicKey = keyPair.publicKey();
+    const nextArgs = await this.nextArgs(publicKey);
+
+    const { entry, operation } = createOperation(
+      {
+        schemaId,
+        fields,
+      },
+      {
+        keyPair,
+        nextArgs,
+      },
+    );
+
+    const localViewId = await this.publish(entry, operation);
+    return localViewId;
+  }
+
+  async update(
+    fields: Fields,
+    previous: DocumentViewId,
+    options?: Partial<Configuration>,
+  ): Promise<DocumentViewId> {
+    if (!fields) {
+      throw new Error('Fields must be provided');
+    }
+
+    if (!previous) {
+      throw new Error('Document view id must be provided');
+    }
+
+    const schemaId = options?.schemaId || this.schemaId;
+    const keyPair = options?.keyPair || this.keyPair;
+
+    const publicKey = keyPair.publicKey();
+    const nextArgs = await this.nextArgs(publicKey);
+
+    const { entry, operation } = updateOperation(
+      {
+        schemaId,
+        previous,
+        fields,
+      },
+      {
+        keyPair,
+        nextArgs,
+      },
+    );
+
+    const localViewId = await this.publish(entry, operation);
+    return localViewId;
+  }
+
+  async delete(
+    previous: DocumentViewId,
+    options?: Partial<Configuration>,
+  ): Promise<DocumentViewId> {
+    if (!previous) {
+      throw new Error('Document view id must be provided');
+    }
+
+    const schemaId = options?.schemaId || this.schemaId;
+    const keyPair = options?.keyPair || this.keyPair;
+
+    const publicKey = keyPair.publicKey();
+    const nextArgs = await this.nextArgs(publicKey);
+
+    const { entry, operation } = deleteOperation(
+      {
+        schemaId,
+        previous,
+      },
+      {
+        keyPair,
+        nextArgs,
+      },
+    );
+
+    const localViewId = await this.publish(entry, operation);
+    return localViewId;
   }
 }

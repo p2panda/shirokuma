@@ -1,21 +1,6 @@
 import { GraphQLClient, gql } from 'graphql-request';
 
-export type NextArgs = {
-  skiplink: string | undefined;
-  backlink: string | undefined;
-  seqNum: string;
-  logId: string;
-};
-
-export type NextArgsVariables = {
-  publicKey: string;
-  viewId?: string;
-};
-
-export type PublishVariables = {
-  entry: string;
-  operation: string;
-};
+import type { NextArgs, NextArgsVariables, PublishVariables } from '../types';
 
 /**
  * GraphQL query to retrieve arguments to create a new entry from node.
