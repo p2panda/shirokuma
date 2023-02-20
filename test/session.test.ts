@@ -42,6 +42,7 @@ describe('nextArgs', () => {
   beforeEach(() => {
     fetchMock.mock(
       {
+        name: 'nextArgs',
         url: 'http://localhost:2020/graphql',
         body: {
           query: GQL_NEXT_ARGS,
@@ -84,9 +85,14 @@ describe('publish', () => {
     fetchMock.mock(
       {
         name: 'publish',
-        url: 'http://localhost:2020',
-        method: 'POST',
-        body: { query: GQL_PUBLISH },
+        url: 'http://localhost:2020/graphql',
+        body: {
+          query: GQL_PUBLISH,
+          variables: {
+            entry: fixtures.entries[3].encodedEntry,
+            operation: fixtures.entries[3].encodedOperation,
+          },
+        },
       },
       {
         data: {
@@ -102,30 +108,30 @@ describe('publish', () => {
   });
 
   it('can publish entries and retreive the next document view id', async () => {
-    const session = new Session('http://localhost:2020').setKeyPair(
+    const session = new Session('http://localhost:2020/graphql').setKeyPair(
       new KeyPair(fixtures.privateKey),
     );
 
     const viewId = await session.publish(
-      fixtures.entries[3].entryBytes,
-      fixtures.entries[3].payloadBytes,
+      fixtures.entries[3].encodedEntry,
+      fixtures.entries[3].encodedOperation,
     );
 
     expect(viewId).toEqual(fixtures.entries[3].entryHash);
   });
 
   it('throws when publishing without all required parameters', async () => {
-    const session = new Session('http://localhost:2020').setKeyPair(
+    const session = new Session('http://localhost:2020/graphql').setKeyPair(
       new KeyPair(fixtures.privateKey),
     );
 
     await expect(
       // @ts-ignore: We deliberately use the API wrong here
-      session.publish(null, fixtures.entries[3].payloadBytes),
+      session.publish(null, fixtures.entries[3].encodedOperation),
     ).rejects.toThrow();
     await expect(
       // @ts-ignore: We deliberately use the API wrong here
-      session.publish(fixtures.entries[3].entryBytes, null),
+      session.publish(fixtures.entries[3].encodedEntry, null),
     ).rejects.toThrow();
   });
 });
@@ -138,7 +144,7 @@ describe('create', () => {
       .mock(
         {
           name: 'nextArgs',
-          url: 'http://localhost:2020',
+          url: 'http://localhost:2020/graphql',
           body: { query: GQL_NEXT_ARGS },
         },
         {
@@ -150,7 +156,7 @@ describe('create', () => {
       .mock(
         {
           name: 'publish',
-          url: 'http://localhost:2020',
+          url: 'http://localhost:2020/graphql',
           body: { query: GQL_PUBLISH },
         },
         {
@@ -167,7 +173,7 @@ describe('create', () => {
   });
 
   beforeEach(async () => {
-    session = new Session('http://localhost:2020');
+    session = new Session('http://localhost:2020/graphql');
     session.setKeyPair(new KeyPair(fixtures.privateKey));
   });
 
@@ -197,7 +203,7 @@ describe('update', () => {
       .mock(
         {
           name: 'nextArgs',
-          url: 'http://localhost:2020',
+          url: 'http://localhost:2020/graphql',
           body: { query: GQL_NEXT_ARGS },
         },
         {
@@ -209,7 +215,7 @@ describe('update', () => {
       .mock(
         {
           name: 'publish',
-          url: 'http://localhost:2020',
+          url: 'http://localhost:2020/graphql',
           body: { query: GQL_PUBLISH },
         },
         {
@@ -226,7 +232,7 @@ describe('update', () => {
   });
 
   beforeEach(async () => {
-    session = new Session('http://localhost:2020');
+    session = new Session('http://localhost:2020/graphql');
     session.setKeyPair(new KeyPair(fixtures.privateKey));
   });
 
@@ -264,7 +270,7 @@ describe('delete', () => {
       .mock(
         {
           name: 'nextArgs',
-          url: 'http://localhost:2020',
+          url: 'http://localhost:2020/graphql',
           body: { query: GQL_NEXT_ARGS },
         },
         {
@@ -276,7 +282,7 @@ describe('delete', () => {
       .mock(
         {
           name: 'publish',
-          url: 'http://localhost:2020',
+          url: 'http://localhost:2020/graphql',
           body: { query: GQL_PUBLISH },
         },
         {
@@ -293,7 +299,7 @@ describe('delete', () => {
   });
 
   beforeEach(async () => {
-    session = new Session('http://localhost:2020');
+    session = new Session('http://localhost:2020/graphql');
     session.setKeyPair(new KeyPair(fixtures.privateKey));
   });
 
