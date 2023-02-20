@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+import fs from 'fs';
+
 import pluginAlias from '@rollup/plugin-alias';
 import pluginCommonJS from '@rollup/plugin-commonjs';
 import pluginDts from 'rollup-plugin-dts';
 import pluginTerser from '@rollup/plugin-terser';
 import pluginTypeScript from '@rollup/plugin-typescript';
 import { nodeResolve as pluginNodeResolve } from '@rollup/plugin-node-resolve';
-
-import pkg from './package.json' assert { type: 'json' };
 
 import type {
   RollupOptions,
@@ -29,6 +29,13 @@ const SRC_DIR = 'src';
 const DIST_DIR = 'lib';
 const BUILD_FILE_NAME = 'index';
 const USE_SOURCEMAP = true;
+
+// Helper to load `package.json` file
+const pkg = JSON.parse(
+  fs.readFileSync(new URL('./package.json', import.meta.url), {
+    encoding: 'utf8',
+  }),
+);
 
 // Returns the name of the sub-directory which will be created in the target
 // folder for each build.
