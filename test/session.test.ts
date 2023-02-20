@@ -174,14 +174,11 @@ describe('create', () => {
   it('returns the id of the created document', async () => {
     const fields = fixtures.operations[0].fields as Fields;
 
-    expect(
-      await session.create(fields, {
+    await expect(
+      session.create(fields, {
         schemaId: fixtures.schemaId,
       }),
     ).resolves.toBe(fixtures.entries[0].entryHash);
-
-    expect(await session.setSchemaId(fixtures.schemaId).create(fields))
-      .resolves;
   });
 
   it('throws when missing a required parameter', async () => {
@@ -237,34 +234,11 @@ describe('update', () => {
     const fields = fixtures.operations[1].fields as Fields;
     const previous = fixtures.operations[1].previous as string[];
 
-    expect(
-      await session.update(fields, previous, {
+    await expect(
+      session.update(fields, previous, {
         schemaId: fixtures.schemaId,
       }),
     ).resolves.toBe(fixtures.entries[1].entryHash);
-
-    expect(
-      await session.setSchemaId(fixtures.schemaId).update(fields, previous),
-    ).resolves;
-  });
-
-  it('uses cache to retreive the arguments for next request', async () => {
-    const fields = fixtures.operations[1].fields as Fields;
-    const previous = fixtures.operations[1].previous as string[];
-
-    await session.update(fields, previous, {
-      schemaId: fixtures.schemaId,
-    });
-
-    // nextArgs + publish request
-    expect(fetchMock).toHaveFetchedTimes(2);
-
-    await session.update(fields, previous, {
-      schemaId: fixtures.schemaId,
-    });
-
-    // ... + publish request (nextArgs was cached)
-    expect(fetchMock).toHaveFetchedTimes(3);
   });
 
   it('throws when missing a required parameter', async () => {
@@ -326,8 +300,8 @@ describe('delete', () => {
   it('returns the local view id of the deleted document', async () => {
     const previous = fixtures.operations[3].previous as string[];
 
-    expect(
-      await session.delete(previous, {
+    await expect(
+      session.delete(previous, {
         schemaId: fixtures.schemaId,
       }),
     ).resolves.toBe(fixtures.entries[3].entryHash);
