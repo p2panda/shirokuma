@@ -1,6 +1,6 @@
 import { GraphQLClient, gql } from 'graphql-request';
 
-import type { NextArgs, NextArgsVariables, PublishVariables } from '../types';
+import type { NextArgs, NextArgsVariables, PublishVariables } from './types';
 
 /**
  * GraphQL query to retrieve arguments to create a new entry from node.

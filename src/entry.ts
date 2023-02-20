@@ -2,7 +2,7 @@
 
 import { signAndEncodeEntry } from 'p2panda-js';
 
-import type { EncodedOperation, EntryArgs, PublishVariables } from '../types';
+import type { EncodedOperation, EntryArgs, PublishVariables } from './types';
 
 /**
  * Sign and publish an entry given an encoded operation, key pair and entry

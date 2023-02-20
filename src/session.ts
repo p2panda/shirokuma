@@ -1,13 +1,9 @@
 import { GraphQLClient } from 'graphql-request';
 import { generateHash, KeyPair } from 'p2panda-js';
 
-import { Cache } from '../cache';
-import {
-  createOperation,
-  deleteOperation,
-  updateOperation,
-} from '../operation';
-import { nextArgs, publish } from '../graphql';
+import { Cache } from './cache';
+import { createOperation, deleteOperation, updateOperation } from './operation';
+import { nextArgs, publish } from './graphql';
 
 import type {
   DocumentViewId,
@@ -17,7 +13,7 @@ import type {
   NextArgs,
   PublicKey,
   SchemaId,
-} from '../types';
+} from './types';
 
 /**
  * Helper method to derive a cache key string for entry arguments.
