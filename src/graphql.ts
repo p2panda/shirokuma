@@ -34,11 +34,6 @@ export const GQL_PUBLISH = gql`
 /**
  * Return arguments for constructing the next entry given author and document
  * view id.
- *
- * @param client GraphQLClient instance
- * @param variables.publicKey public key of the author
- * @param variables.viewId optional document view id
- * @returns `NextArgs` object
  */
 export async function nextArgs(
   client: GraphQLClient,
@@ -58,11 +53,6 @@ export async function nextArgs(
 
 /**
  * Publish an encoded entry and operation.
- *
- * @param client GraphQLClient instance
- * @param variables.entry Encoded entry
- * @param variables.operation Encoded operation
- * @returns `NextArgs` object
  */
 export async function publish(
   client: GraphQLClient,

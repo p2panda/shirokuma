@@ -18,7 +18,7 @@ import type {
  * Options we can pass in into methods which will override the globally set
  * options for that session for that method call.
  */
-type Options = {
+export type Options = {
   /**
    * Key pair which is used for that method call to sign the entry.
    */
@@ -41,7 +41,7 @@ type Options = {
  *
  * A session is configured with the URL of a p2panda node, which may be running
  * locally or on a remote machine. It is possible to set a fixed key pair
- * and/or data schema for a session by calling `setKeyPair()` and `setSchema()`
+ * and/or data schema for a session by calling `setKeyPair()` and `setSchemaId()`
  * or you can also configure these through the `options` parameter of
  * methods.
  */
@@ -56,6 +56,12 @@ export class Session {
    */
   readonly client: GraphQLClient;
 
+  /**
+   * Initiates a new session.
+   *
+   * @param endpoint - URL of p2panda node
+   * @returns Session instance
+   */
   constructor(endpoint: Session['endpoint']) {
     if (!endpoint) {
       throw new Error('Missing `endpoint` parameter for creating a session');
@@ -74,6 +80,8 @@ export class Session {
    * Returns currently configured schema id.
    *
    * Throws if no schema id is configured.
+   *
+   * @returns SchemaId instance
    */
   get schemaId(): SchemaId {
     if (!this.#schemaId) {
@@ -92,7 +100,7 @@ export class Session {
    * This value will be used if no other schema id is defined through a methods
    * `options` parameter.
    *
-   * @param id schema id
+   * @param id - schema id
    * @returns Session instance
    */
   setSchemaId(id: SchemaId): Session {
@@ -109,6 +117,8 @@ export class Session {
    * Returns currently configured key pair.
    *
    * Throws if no key pair is configured.
+   *
+   * @returns KeyPair instance
    */
   get keyPair(): KeyPair {
     if (!this.#keyPair) {
@@ -135,13 +145,14 @@ export class Session {
     this.#keyPair = keyPair;
     return this;
   }
+
   /**
    * Return arguments for constructing the next entry given public key and
    * schema id.
    *
-   * @param publicKey public key of the author
-   * @param viewId optional document view id
-   * @returns arguments used to create a new entry
+   * @param publicKey - public key of the author
+   * @param viewId - optional document view id
+   * @returns NextArgs arguments used to create a new entry
    */
   async nextArgs(
     publicKey: PublicKey,
@@ -174,7 +185,7 @@ export class Session {
    * string
    * @param operation - encoded CBOR operation, represented as hexadecimal
    * string
-   * @returns local document view id
+   * @returns DocumentViewId - local document view id
    */
   async publish(
     entry: EncodedEntry,
@@ -204,7 +215,8 @@ export class Session {
    * @param options.schemaId - will be used as the matching schema identifier
    * @returns Document id of the document we've created
    * @example
-   * const endpoint = 'http://localhost:2020';
+   * ```
+   * const endpoint = 'http://localhost:2020/graphql';
    * const keyPair = new KeyPair();
    * const schemaId = 'chat_00206394434d78553bd064c8ea9a61d2b9622826909966ae895eb1c8b692b335d919';
    *
@@ -215,6 +227,7 @@ export class Session {
    * await new Session(endpoint)
    *   .setKeyPair(keyPair)
    *   .create(fields, { schemaId });
+   * ```
    */
   async create(
     fields: Fields,
@@ -264,7 +277,8 @@ export class Session {
    * @returns Document view id, pointing at the exact version of the document
    * we've just updated
    * @example
-   * const endpoint = 'http://localhost:2020';
+   * ```
+   * const endpoint = 'http://localhost:2020/graphql';
    * const keyPair = new KeyPair();
    * const schemaId = 'chat_00206394434d78553bd064c8ea9a61d2b9622826909966ae895eb1c8b692b335d919';
    *
@@ -281,6 +295,7 @@ export class Session {
    * await session.update({
    *   message: 'ahoy, my friend!'
    * }, viewId);
+   * ```
    */
   async update(
     fields: Fields,
@@ -335,7 +350,8 @@ export class Session {
    * @returns Document view id, pointing at the exact version of the document
    * we've just deleted
    * @example
-   * const endpoint = 'http://localhost:2020';
+   * ```
+   * const endpoint = 'http://localhost:2020/graphql';
    * const keyPair = new KeyPair();
    * const schemaId = 'chat_00206394434d78553bd064c8ea9a61d2b9622826909966ae895eb1c8b692b335d919';
    *
@@ -350,6 +366,7 @@ export class Session {
    *
    * // Use the `viewId` to point our deletion at the document we've just created
    * await session.delete(viewId);
+   * ```
    */
   async delete(
     previous: DocumentViewId,
