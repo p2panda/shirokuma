@@ -125,20 +125,6 @@ npm test
 npm run build
 ```
 
-### Debug logging
-
-Enable debug logging for node environments by setting an environment variable:
-
-```bash
-export DEBUG='shirokuma*'
-```
-
-Enable debug logging from a browser console by storing a key `debug` in local storage:
-
-```js
-localStorage.debug = 'shirokuma*';
-```
-
 ### Documentation
 
 ```bash
