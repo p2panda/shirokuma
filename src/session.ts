@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { GraphQLClient } from 'graphql-request';
 import { generateHash, KeyPair } from 'p2panda-js';
 

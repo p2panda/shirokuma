@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { GraphQLClient, gql } from 'graphql-request';
 
 import type { NextArgs, NextArgsVariables, PublishVariables } from './types';
