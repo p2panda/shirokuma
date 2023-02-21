@@ -161,7 +161,7 @@ describe('create', () => {
         },
         {
           data: {
-            nextArgs: fixtures.nextArgs[0],
+            nextArgs: fixtures.nextArgs[1],
           },
         },
       );
@@ -220,7 +220,7 @@ describe('update', () => {
         },
         {
           data: {
-            nextArgs: fixtures.nextArgs[1],
+            nextArgs: fixtures.nextArgs[2],
           },
         },
       );
@@ -275,7 +275,7 @@ describe('delete', () => {
         },
         {
           data: {
-            nextArgs: fixtures.nextArgs[4],
+            nextArgs: fixtures.nextArgs[3],
           },
         },
       )
