@@ -52,13 +52,8 @@ export async function nextArgs(
     throw new Error("Author's public key must be provided");
   }
 
-  try {
-    const response = await client.request(GQL_NEXT_ARGS, variables);
-    return response.nextArgs;
-  } catch (error) {
-    // @TODO: Add logging
-    throw error;
-  }
+  const response = await client.request(GQL_NEXT_ARGS, variables);
+  return response.nextArgs;
 }
 
 /**
@@ -81,11 +76,6 @@ export async function publish(
     throw new Error('Encoded entry and operation must be provided');
   }
 
-  try {
-    const response = await client.request(GQL_PUBLISH, variables);
-    return response.publish;
-  } catch (error) {
-    // @TODO: Add logging
-    throw error;
-  }
+  const response = await client.request(GQL_PUBLISH, variables);
+  return response.publish;
 }
