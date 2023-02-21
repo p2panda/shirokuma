@@ -47,12 +47,9 @@ To install `shirokuma` run:
 npm i shirokuma
 ```
 
-## Usage
+## Example
 
-`shirokuma` runs in web browsers and can be integrated in a bundle for example
-via Webpack or Rollup.
-
-```js
+```typescript
 import { KeyPair, Session, initWebAssembly } from 'shirokuma';
 
 // This method needs to be run once before to initialise the embedded
@@ -75,39 +72,27 @@ const keyPair = new KeyPair();
 const session = new Session('https://welle.liebechaos.org').setKeyPair(keyPair);
 
 // Compose your operation payload, according to chosen schema
-const payload = {
+const fields = {
   message: 'Hi there',
 };
 
-// Send new chat operation to the node
-await session.create(payload, { schema: CHAT_SCHEMA });
-
-// Query instances from the p2panda node
-import { gql, useQuery } from '@apollo/client';
-
-const GET_CHAT_MESSAGES = gql`
-  all_${CHAT_SCHEMA} {
-    fields {
-      message
-    }
-  }
-`;
-
-const Chat = () => {
-  const { loading, error, data } = useQuery(GET_CHAT_MESSAGES);
-
-  if (loading) return 'Loading...';
-  if (error) return `Error! ${error.message}`;
-
-  return (
-    <ul>
-      {data[`all_${CHAT_SCHEMA}`].map((doc) => (
-        <li key={doc.id}>{doc.fields.message}</li>
-      ))}
-    </ul>
-  );
-};
+// Send new chat message to the node
+await session.create(fields, { schemaId: CHAT_SCHEMA });
 ```
+
+## Usage
+
+`shirokuma` runs both in NodeJS and web browsers and comes as a ES, CommonJS
+or UMD module. It can easily be integrated into Webpack, Rollup or other tools.
+
+Since `shirokuma` contains WebAssembly code, it is necessary to initialise it
+before using the methods in the Browser. This initialisation step is not
+required in NodeJS contexts.
+
+To make this step a little bit easier `shirokuma` inlines the WebAssembly code
+as a base64 string which gets decoded automatically during initialisation. For
+manual initialisation the package also comes with "slim" versions where you
+need to provide a path to the ".wasm" file yourself.
 
 ## Development
 
