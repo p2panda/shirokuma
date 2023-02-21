@@ -1,7 +1,6 @@
 import { GraphQLClient } from 'graphql-request';
 import { generateHash, KeyPair } from 'p2panda-js';
 
-import { Cache } from './cache';
 import { createOperation, deleteOperation, updateOperation } from './operation';
 import { nextArgs, publish } from './graphql';
 
@@ -14,13 +13,6 @@ import type {
   PublicKey,
   SchemaId,
 } from './types';
-
-/**
- * Helper method to derive a cache key string for entry arguments.
- */
-function getCacheKey(publicKey: PublicKey, viewId: DocumentViewId) {
-  return `${publicKey}/${viewId}`;
-}
 
 /**
  * Options we can pass in into methods which will override the globally set
@@ -64,11 +56,6 @@ export class Session {
    */
   readonly client: GraphQLClient;
 
-  /**
-   * Internal cache to keep state required for creating Bamboo entries.
-   */
-  readonly cache: Cache<NextArgs>;
-
   constructor(endpoint: Session['endpoint']) {
     if (!endpoint) {
       throw new Error('Missing `endpoint` parameter for creating a session');
@@ -76,7 +63,6 @@ export class Session {
 
     this.endpoint = endpoint;
     this.client = new GraphQLClient(endpoint);
-    this.cache = new Cache();
   }
 
   /**
@@ -153,8 +139,6 @@ export class Session {
    * Return arguments for constructing the next entry given public key and
    * schema id.
    *
-   * This uses an internal cache which might know the arguments already.
-   *
    * @param publicKey public key of the author
    * @param viewId optional document view id
    * @returns arguments used to create a new entry
@@ -167,21 +151,6 @@ export class Session {
       throw new Error("Author's public key must be provided");
     }
 
-    // Use cache only when viewId is set.
-    //
-    // If it is not set we need to determine the next free logId but we do not
-    // keep track of that currently, so let's ask the node in that case!
-    if (viewId) {
-      const cacheKey = getCacheKey(publicKey, viewId);
-      const cachedValue = this.cache.get(cacheKey);
-
-      if (cachedValue) {
-        this.cache.remove(cacheKey);
-        return cachedValue;
-      }
-    }
-
-    // Ask node for next entry arguments if we can't determine them locally
     const result = await nextArgs(this.client, {
       publicKey,
       viewId,
@@ -217,14 +186,8 @@ export class Session {
 
     // Publish entry with operation payload and retreive next entry arguments
     // for future updates on that document
-    const nextArgs = await publish(this.client, { entry, operation });
-
-    // Store next entry arguments optimistically in our cache, so it's ready
-    // next time we want to publish something related to this document
-    const publicKey = this.keyPair.publicKey();
+    await publish(this.client, { entry, operation });
     const localViewId = generateHash(entry);
-    const cacheKey = getCacheKey(publicKey, localViewId);
-    this.cache.insert(cacheKey, nextArgs);
 
     // Return document view id of the "latest" version from our perspective,
     // hence "local"
@@ -264,7 +227,7 @@ export class Session {
     const schemaId = options?.schemaId || this.schemaId;
     const keyPair = options?.keyPair || this.keyPair;
 
-    // Retreive next entry arguments, potentially from cache
+    // Retreive next entry arguments
     const publicKey = keyPair.publicKey();
     const nextArgs = await this.nextArgs(publicKey);
 
@@ -335,7 +298,7 @@ export class Session {
     const schemaId = options?.schemaId || this.schemaId;
     const keyPair = options?.keyPair || this.keyPair;
 
-    // Retreive next entry arguments, potentially from cache
+    // Retreive next entry arguments
     const publicKey = keyPair.publicKey();
     const nextArgs = await this.nextArgs(publicKey);
 
@@ -399,7 +362,7 @@ export class Session {
     const schemaId = options?.schemaId || this.schemaId;
     const keyPair = options?.keyPair || this.keyPair;
 
-    // Retreive next entry arguments, potentially from cache
+    // Retreive next entry arguments
     const publicKey = keyPair.publicKey();
     const nextArgs = await this.nextArgs(publicKey);
 

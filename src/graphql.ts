@@ -35,8 +35,6 @@ export const GQL_PUBLISH = gql`
  * Return arguments for constructing the next entry given author and document
  * view id.
  *
- * This uses the cache set through `Session._setnextArgs`.
- *
  * @param client GraphQLClient instance
  * @param variables.publicKey public key of the author
  * @param variables.viewId optional document view id
