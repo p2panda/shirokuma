@@ -38,8 +38,8 @@ export type Options = {
  *
  * `Session` provides a high-level interface to create data in the p2panda
  * network by creating, updating and deleting documents following data schemas.
- * It also provides a low-level API for directly accessing and creating
- * entries on the Bamboo append-only log structure.
+ * It also provides a low-level API for creating entries on the Bamboo
+ * append-only log structure.
  *
  * A session is configured with the URL of a p2panda node, which may be running
  * locally or on a remote machine. It is possible to set a fixed key pair
@@ -150,7 +150,7 @@ export class Session {
 
   /**
    * Return arguments for constructing the next entry given public key and
-   * schema id.
+   * document view id.
    *
    * @param publicKey - public key of the author
    * @param viewId - optional document view id

@@ -13,7 +13,7 @@ import type {
 } from './types';
 
 /**
- * Signs and publishes a CREATE operation with the given data fields.
+ * Encodes and signs a CREATE operation with the given data fields.
  *
  * Returns the encoded entry and encoded operation.
  */
@@ -30,7 +30,7 @@ export function createOperation(
 }
 
 /**
- * Signs and publishes an UPDATE operation for the given document view id and
+ * Encodes and signs an UPDATE operation for the given document view id and
  * fields.
  *
  * Returns the encoded entry and encoded operation.
@@ -48,7 +48,7 @@ export function updateOperation(
 }
 
 /**
- * Signs and publishes a DELETE operation for the given document view id.
+ * Encodes and signs a DELETE operation for the given document view id.
  *
  * Returns the encoded entry and encoded operation.
  */
