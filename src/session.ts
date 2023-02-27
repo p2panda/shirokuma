@@ -180,8 +180,11 @@ export class Session {
    *
    * It is "local" because it is the "latest version" from our perspective.
    * Concurrent updates through other peers might have happend but we didn't
-   * know about them in the moment we've published our operation. p2panda
-   * handles these concurrent updates internally for us.
+   * know about them in the moment we've published our operation.
+   *
+   * If concurrent edits by other peers should also be referred to (as is
+   * often the case) then the document view id should be accessed via the
+   * GraphQL client API.
    *
    * @param entry - encoded and signed entry, represented as hexadecimal
    * string
