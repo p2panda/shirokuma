@@ -12,6 +12,8 @@ export type PublicKey = string;
  */
 export type EntryHash = string;
 
+export type DocumentId = string;
+
 /**
  * Document view id which contains one to many operation ids, either as one
  * string separated by underscores or as an array of strings.
