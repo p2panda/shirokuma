@@ -56,9 +56,7 @@ import { KeyPair, Session, initWebAssembly } from 'shirokuma';
 // WebAssembly code in this package
 await initWebAssembly();
 
-// This example uses the "chat" schema at which this hash is pointing. We are
-// still working on a good way for you to create and access data schemas. For
-// now you can use https://github.com/p2panda/fishyfish to do so
+// This example uses the "chat" schema at which this hash is pointing
 const CHAT_SCHEMA =
   'chat_message_0020a654068b26617ebd6574b1b03853193ccab2295a983bc85a5891793422832655';
 
