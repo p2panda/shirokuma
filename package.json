@@ -9,8 +9,15 @@
   "exports": {
     ".": {
       "types": "./lib/cjs/index.d.ts",
+      "node": "./lib/node/index.cjs",
       "import": "./lib/esm/index.js",
       "default": "./lib/cjs/index.cjs"
+    },
+    "./slim": {
+      "types": "./lib/cjs-slim/index.d.ts",
+      "node": "./lib/node/index.cjs",
+      "import": "./lib/esm-slim/index.js",
+      "default": "./lib/cjs-slim/index.cjs"
     },
     "./package.json": "./package.json"
   },
@@ -19,13 +26,13 @@
     "clear": "rimraf ./lib",
     "docs": "typedoc src/index.ts",
     "lint": "eslint --ext .ts .",
-    "rollup": "rollup -c",
+    "rollup": "rollup -c rollup.config.ts --configPlugin typescript",
     "test": "cross-env NODE_ENV=development jest --coverage=$npm_config_coverage",
     "test:watch": "nodemon --watch '../p2panda-rs/src/*' --watch './src/*' --exec 'npm test' --ext js,ts,json",
     "typecheck": "tsc --noEmit"
   },
   "engines": {
-    "node": ">= v16.0.0"
+    "node": ">= v17.5.0"
   },
   "files": [
     "lib"
@@ -49,15 +56,14 @@
     "@babel/core": "^7.20.12",
     "@babel/preset-env": "^7.20.2",
     "@babel/register": "^7.18.9",
-    "@rollup/plugin-babel": "^6.0.3",
+    "@rollup/plugin-alias": "^4.0.3",
     "@rollup/plugin-commonjs": "^24.0.1",
-    "@rollup/plugin-json": "^6.0.0",
     "@rollup/plugin-node-resolve": "^15.0.1",
     "@rollup/plugin-terser": "^0.4.0",
     "@rollup/plugin-typescript": "^11.0.0",
     "@tsconfig/node16": "^1.0.3",
     "@types/jest": "^29.4.0",
-    "@types/node": "^18.13.0",
+    "@types/node": "^18.14.0",
     "@typescript-eslint/eslint-plugin": "^5.52.0",
     "@typescript-eslint/parser": "^5.52.0",
     "cross-env": "^7.0.3",
@@ -65,7 +71,7 @@
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-prettier": "^4.2.1",
     "fetch-mock-jest": "^1.5.1",
-    "jest": "^29.4.2",
+    "jest": "^29.4.3",
     "nodemon": "^2.0.20",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.8.4",
@@ -74,12 +80,11 @@
     "rollup-plugin-dts": "^5.2.0",
     "ts-jest": "^29.0.5",
     "ts-node": "^10.9.1",
+    "tslib": "^2.5.0",
     "typedoc": "^0.23.25",
     "typescript": "^4.9.5"
   },
   "dependencies": {
-    "@types/debug": "^4.1.7",
-    "debug": "^4.3.4",
     "graphql": "^16.6.0",
     "graphql-request": "^5.1.0",
     "p2panda-js": "^0.6.0"

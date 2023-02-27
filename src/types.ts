@@ -1,181 +1,115 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+import type { EasyValues, KeyPair, OperationFields } from 'p2panda-js';
+
+/**
+ * Ed25519 public key of author.
+ */
+export type PublicKey = string;
+
+/**
+ * YASMF-BLAKE3 hash of an Bamboo entry.
+ */
+export type EntryHash = string;
+
+/**
+ * Document view id which contains one to many operation ids, either as one
+ * string separated by underscores or as an array of strings.
+ */
+export type DocumentViewId = string | string[];
+
+/**
+ * Application- (custom) or System schema (constant) identifier.
+ */
 export type SchemaId =
   | 'schema_definition_v1'
   | 'schema_field_definition_v1'
   | string;
 
 /**
- * Arguments for publishing the next entry.
+ * Data fields sent within an operation.
+ */
+export type Fields = EasyValues | OperationFields;
+
+/**
+ * Arguments required to create a new document.
+ */
+export type CreateArgs = {
+  schemaId: SchemaId;
+  fields: Fields;
+};
+
+/**
+ * Arguments required to update a new document.
+ */
+export type UpdateArgs = {
+  schemaId: SchemaId;
+  previous: DocumentViewId;
+  fields: Fields;
+};
+
+/**
+ * Arguments required to delete a new document.
+ */
+export type DeleteArgs = {
+  schemaId: SchemaId;
+  previous: DocumentViewId;
+};
+
+/**
+ * Arguments required to create and sign a new Bamboo entry.
+ */
+export type EntryArgs = {
+  keyPair: KeyPair;
+  nextArgs: NextArgs;
+};
+
+/**
+ * Response data from `nextArgs` and `publish` GraphQL query. Contains all the
+ * important bits to create a new Bamboo entry.
  */
 export type NextArgs = {
-  skiplink: string | undefined;
-  backlink: string | undefined;
-  seqNum: string;
-  logId: string;
+  skiplink?: string;
+  backlink?: string;
+  seqNum: string | bigint | number;
+  logId: string | bigint | number;
 };
 
 /**
- * Entry record received from aquadoggo.
+ * Bamboo entry bytes, encoded as hexadecimal string.
  */
-export type EncodedEntry = {
-  author: string;
-  entryBytes: string;
-  entryHash: string;
-  logId: bigint;
-  payloadBytes: string;
-  payloadHash: string;
-  seqNum: bigint;
+export type EncodedEntry = string;
+
+/**
+ * CBOR operation bytes, encoded as hexadecimal string.
+ */
+export type EncodedOperation = string;
+
+/**
+ * To-be-published entry and operation data.
+ */
+export type Payload = {
+  entry: EncodedEntry;
+  operation: EncodedOperation;
 };
 
 /**
- * Entry record from aquadoggo with decoded `Entry`.
+ * To-be-published entry and operation data plus additional information about
+ * the current, local document view id
  */
-export type EntryRecord = Entry & {
-  encoded: EncodedEntry;
+export type PayloadWithViewId = Payload & {
+  localViewId: EntryHash;
 };
 
 /**
- * Decoded entry containing optional `Operation`.
+ * Request data for `nextArgs` GraphQL query.
  */
-export type Entry = {
-  backlink: string | undefined;
-  skiplink: string | undefined;
-  logId: bigint;
-  operation: Operation | undefined;
-  seqNum: bigint;
+export type NextArgsVariables = {
+  publicKey: PublicKey;
+  viewId?: DocumentViewId;
 };
 
 /**
- * Decoded form of an operation, which can create, update or delete documents.
+ * Request data for `publish` GraphQL mutation.
  */
-export type Operation = {
-  action: 'create' | 'update' | 'delete';
-  schema: SchemaId;
-  previous?: string[];
-  fields?: Fields;
-  id?: string;
-};
-
-/**
- * Object containing operation field values.
- */
-export type Fields = {
-  [fieldname: string]:
-    | boolean
-    | number
-    | string
-    | bigint
-    | Relation
-    | Relation[]
-    | PinnedRelation
-    | PinnedRelation[];
-};
-
-/**
- * Relation pointing at a document id.
- */
-export type Relation = string;
-
-/**
- * Pinned relation pointing at a document view id.
- */
-export type PinnedRelation = string[];
-
-/**
- * Decoded entry containing optional `Operation`.
- */
-export type EntryTagged = {
-  backlink: string | undefined;
-  skiplink: string | undefined;
-  logId: bigint;
-  operation: OperationTagged | undefined;
-  seqNum: bigint;
-};
-
-/**
- * Decoded form of an operation, which can create, update or delete documents.
- */
-export type OperationTagged = {
-  action: 'create' | 'update' | 'delete';
-  previous?: string[];
-  schema: SchemaId;
-  fields: FieldsTagged;
-};
-
-/**
- * Object containing operation fields in tagged form.
- */
-export type FieldsTagged = Map<string, OperationValue>;
-
-export type OperationValue =
-  | OperationValueBool
-  | OperationValueFloat
-  | OperationValueInt
-  | OperationValueRelation
-  | OperationValueRelationList
-  | OperationValueText;
-
-/**
- * An operation value of `boolean` type.
- */
-export type OperationValueBool = {
-  value: boolean;
-  type: 'bool';
-};
-
-/**
- * An operation value of `integer` type.
- */
-export type OperationValueInt = {
-  // Internally stored as a string to give support for very large numbers
-  value: string;
-  type: 'int';
-};
-
-/**
- * An operation value of `float` type.
- */
-export type OperationValueFloat = {
-  value: number;
-  type: 'float';
-};
-
-/**
- * An operation value of `string` type.
- */
-export type OperationValueText = {
-  value: string;
-  type: 'str';
-};
-
-/**
- * An operation value of `relation` type.
- */
-export type OperationValueRelation = {
-  value: Relation;
-  type: 'relation';
-};
-
-/**
- * An operation value of `relation_list` type.
- */
-export type OperationValueRelationList = {
-  value: Relation[];
-  type: 'relation_list';
-};
-/**
- * An operation value of `pinned_relation` type.
- */
-export type OperationValuePinnedRelation = {
-  value: PinnedRelation;
-  type: 'pinned_relation';
-};
-
-/**
- * An operation value of `pinned_relation_list` type.
- */
-export type OperationValuePinnedRelationList = {
-  value: PinnedRelation[];
-  type: 'pinned_relation_list';
-};
+export type PublishVariables = Payload;
