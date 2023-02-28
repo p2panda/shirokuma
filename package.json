@@ -3,9 +3,6 @@
   "version": "0.1.0",
   "description": "TypeScript framework to easily write p2panda applications",
   "type": "module",
-  "main": "./lib/umd/index.js",
-  "module": "./lib/esm/index.js",
-  "types": "./lib/umd/index.d.ts",
   "exports": {
     ".": {
       "types": "./lib/cjs/index.d.ts",
@@ -32,7 +29,7 @@
     "typecheck": "tsc --noEmit"
   },
   "engines": {
-    "node": ">= v17.5.0"
+    "node": ">= v16"
   },
   "files": [
     "lib"
