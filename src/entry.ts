@@ -16,6 +16,8 @@ export function signAndHashEntry(
 ): PublishVariables {
   const { nextArgs, keyPair } = entryArgs;
 
+  console.log('ENTRY', { operation, nextArgs });
+
   const entry = signAndEncodeEntry(
     {
       ...nextArgs,

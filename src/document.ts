@@ -5,13 +5,13 @@ import { Session } from './session';
 import type { SchemaId, DocumentId, DocumentViewId, Fields } from './types';
 
 export class Document {
+  readonly session: Session;
+
   readonly schemaId: SchemaId;
 
   readonly documentId: DocumentId;
 
   viewId: DocumentViewId;
-
-  readonly session: Session;
 
   fields: Fields;
 
@@ -27,6 +27,8 @@ export class Document {
     const { fields, schemaId, documentId, viewId } = args;
 
     this.schemaId = schemaId;
+
+    // @TODO: Apply fields directly to class instance and detect duplicates
     this.fields = fields;
     this.documentId = documentId;
     this.viewId = viewId;
