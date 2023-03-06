@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "TypeScript framework to easily write p2panda applications",
   "type": "module",
+  "types": "./lib/umd/index.d.ts",
   "exports": {
     ".": {
       "types": "./lib/cjs/index.d.ts",
