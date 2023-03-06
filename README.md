@@ -98,37 +98,6 @@ const keyPair = new KeyPair();
 console.log(keyPair.publicKey());
 ```
 
-### Browser
-
-To quickly get started you can run `shirokuma` in any modern browser as an ES module like that:
-
-```html
-<script type="module">
-  import { initWebAssembly, KeyPair } from 'https://cdn.jsdelivr.net/npm/shirokuma@0.1.0/lib/esm/index.min.js';
-
-  // This only needs to be done once before using all `shirokuma` methods.
-  initWebAssembly().then(() => {
-    const keyPair = new KeyPair();
-    console.log(keyPair.publicKey());
-  });
-</script>
-```
-
-Or use the "slim" version if you want to provide the ".wasm" file manually:
-
-```html
-<script type="module">
-  import { initWebAssembly, KeyPair } from 'https://cdn.jsdelivr.net/npm/shirokuma@0.1.0/lib/esm-slim/index.min.js';
-
-  // Pass external .wasm file manually for smaller file sizes
-  const wasmFile = 'https://cdn.jsdelivr.net/npm/shirokuma@0.1.0/lib/p2panda.wasm';
-  initWebAssembly(wasmFile).then(() => {
-    const keyPair = new KeyPair();
-    console.log(keyPair.publicKey());
-  });
-</script>
-```
-
 ### Bundlers
 
 ```javascript
