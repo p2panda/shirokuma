@@ -320,7 +320,7 @@ export class Session {
 
     // Retreive next entry arguments
     const publicKey = keyPair.publicKey();
-    const nextArgs = await this.nextArgs(publicKey);
+    const nextArgs = await this.nextArgs(publicKey, previous);
 
     // Sign and encode entry with UPDATE operation
     const { entry, operation } = updateOperation(
@@ -386,7 +386,7 @@ export class Session {
 
     // Retreive next entry arguments
     const publicKey = keyPair.publicKey();
-    const nextArgs = await this.nextArgs(publicKey);
+    const nextArgs = await this.nextArgs(publicKey, previous);
 
     // Sign and encode entry with DELETE operation
     const { entry, operation } = deleteOperation(
