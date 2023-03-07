@@ -7,8 +7,6 @@ on:
 
 jobs:
   deploy:
-    name: shirokuma API documentation
-
     runs-on: ubuntu-latest
 
     steps:
