@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "TypeScript framework to easily write p2panda applications",
   "type": "module",
+  "types": "./lib/umd/index.d.ts",
   "exports": {
     ".": {
       "types": "./lib/cjs/index.d.ts",
@@ -16,6 +17,7 @@
       "import": "./lib/esm-slim/index.js",
       "default": "./lib/cjs-slim/index.cjs"
     },
+    "./p2panda.wasm": "./lib/p2panda.wasm",
     "./package.json": "./package.json"
   },
   "scripts": {

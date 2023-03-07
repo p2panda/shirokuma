@@ -60,21 +60,19 @@ await initWebAssembly();
 const CHAT_SCHEMA =
   'chat_message_0020a654068b26617ebd6574b1b03853193ccab2295a983bc85a5891793422832655';
 
-// Create a key pair for every usage context of p2panda, i.e. every device and
-// every piece of software that is used. Key pairs should never have to be
-// transferred between different devices of a user
+// Create a key pair
 const keyPair = new KeyPair();
 
 // Open a long running connection to a p2panda node and configure it so all
 // calls in this session are executed using that key pair
-const session = new Session('https://welle.liebechaos.org').setKeyPair(keyPair);
+const session = new Session('http://localhost:2020/graphql').setKeyPair(keyPair);
 
 // Compose your operation payload, according to chosen schema
 const fields = {
   message: 'Hi there',
 };
 
-// Send new chat message to the node
+// Create and send a new chat message to the node
 await session.create(fields, { schemaId: CHAT_SCHEMA });
 ```
 
@@ -91,6 +89,48 @@ To make this step a little bit easier `shirokuma` inlines the WebAssembly code
 as a base64 string which gets decoded automatically during initialisation. For
 manual initialisation the package also comes with "slim" versions where you
 need to provide a path to the ".wasm" file yourself.
+
+### NodeJS
+
+```javascript
+import { KeyPair } from 'shirokuma';
+const keyPair = new KeyPair();
+console.log(keyPair.publicKey());
+```
+
+### Bundlers
+
+```javascript
+import { initWebAssembly, KeyPair } from 'shirokuma';
+
+// This only needs to be done once before using all `shirokuma` methods.
+await initWebAssembly();
+
+const keyPair = new KeyPair();
+console.log(keyPair.publicKey());
+```
+
+### Manually load `.wasm`
+
+Running `shirokuma` in the browser automatically inlines the WebAssembly
+inside the JavaScript file, encoded as a base64 string. While this works for
+most developers, it also doubles the size of the imported file. To avoid larger
+payloads and decoding times you can load the `.wasm` file manually by using a
+"slim" version. For this you need to initialise the module by passing the path
+to the file into `initWebAssembly`:
+
+```javascript
+// Import from `slim` module to manually initialise WebAssembly code
+import { initWebAssembly, KeyPair } from 'shirokuma/slim';
+import wasm from 'shirokuma/p2panda.wasm';
+
+// When running shirokuma in the browser, this method needs to run once
+// before using all other methods
+await initWebAssembly(wasm);
+
+const keyPair = new KeyPair();
+console.log(keyPair.publicKey());
+```
 
 ## Development
 

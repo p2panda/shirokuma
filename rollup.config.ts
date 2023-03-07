@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import fs from 'fs';
+import path from 'path';
 
 import pluginAlias from '@rollup/plugin-alias';
 import pluginCommonJS from '@rollup/plugin-commonjs';
@@ -36,6 +37,20 @@ const pkg = JSON.parse(
     encoding: 'utf8',
   }),
 );
+
+// Plugin to copy `p2panda.wasm` file from `p2panda-js` into export.
+function pluginCopyWasm(): Plugin {
+  return {
+    name: 'copy-wasm',
+    resolveImportMeta: () => `""`,
+    generateBundle() {
+      fs.copyFileSync(
+        path.resolve('./node_modules/p2panda-js/lib/p2panda.wasm'),
+        path.resolve(`${DIST_DIR}/p2panda.wasm`),
+      );
+    },
+  };
+}
 
 // Returns the name of the sub-directory which will be created in the target
 // folder for each build.
@@ -116,6 +131,12 @@ function getPlugins({ format, mode }: Config): Plugin[] {
 
   // Compile TypeScript source code to JavaScript
   result.push(pluginTypeScript());
+
+  // We only need to copy this once, let's pick NodeJS build for that (since it
+  // only gets build once)
+  if (mode === 'node') {
+    result.push(pluginCopyWasm());
+  }
 
   return result;
 }
