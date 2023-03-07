@@ -4,6 +4,14 @@ import { GraphQLClient, gql } from 'graphql-request';
 
 import type { NextArgs, NextArgsVariables, PublishVariables } from './types';
 
+type NextArgsResponse = {
+  nextArgs: NextArgs;
+};
+
+type PublishResponse = {
+  publish: NextArgs;
+};
+
 /**
  * GraphQL query to retrieve arguments to create a new entry from node.
  */
@@ -49,7 +57,11 @@ export async function nextArgs(
     throw new Error("Author's public key must be provided");
   }
 
-  const response = await client.request(GQL_NEXT_ARGS, variables);
+  const response = await client.request<NextArgsResponse>(
+    GQL_NEXT_ARGS,
+    variables,
+  );
+
   return response.nextArgs;
 }
 
@@ -68,6 +80,10 @@ export async function publish(
     throw new Error('Encoded entry and operation must be provided');
   }
 
-  const response = await client.request(GQL_PUBLISH, variables);
+  const response = await client.request<PublishResponse>(
+    GQL_PUBLISH,
+    variables,
+  );
+
   return response.publish;
 }
