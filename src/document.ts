@@ -1,11 +1,23 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { Session } from './session';
+import { marshallFields } from './utils';
 
-import type { SchemaId, DocumentId, DocumentViewId, Fields } from './types';
+import type {
+  DocumentFields,
+  DocumentId,
+  DocumentValue,
+  DocumentViewId,
+  SchemaFields,
+  SchemaId,
+} from './types';
 
 export class Document {
-  readonly session: Session;
+  #session: Session;
+
+  #fields: DocumentFields;
+
+  #schemaFields: SchemaFields;
 
   readonly schemaId: SchemaId;
 
@@ -13,41 +25,55 @@ export class Document {
 
   viewId: DocumentViewId;
 
-  fields: Fields;
-
   constructor(
     args: {
-      fields: Fields;
+      fields: DocumentFields;
       schemaId: SchemaId;
+      schemaFields: SchemaFields;
       documentId: DocumentId;
       viewId: DocumentViewId;
     },
     session: Session,
   ) {
-    const { fields, schemaId, documentId, viewId } = args;
+    const { fields, schemaId, schemaFields, documentId, viewId } = args;
+
+    this.#session = session;
+
+    this.#fields = fields;
+    this.#schemaFields = schemaFields;
 
     this.schemaId = schemaId;
-
-    // @TODO: Apply fields directly to class instance and detect duplicates
-    this.fields = fields;
     this.documentId = documentId;
     this.viewId = viewId;
-
-    this.session = session;
   }
 
-  async update(fields: Fields): Promise<DocumentViewId> {
-    const viewId = await this.session.update(fields, this.viewId, {
+  get(name: string): DocumentValue {
+    if (!(name in this.#fields)) {
+      throw new Error(`'${name}' field not given in document`);
+    }
+
+    return this.#fields[name];
+  }
+
+  async update(fields: DocumentFields): Promise<DocumentViewId> {
+    const operationFields = marshallFields(fields, this.#schemaFields);
+
+    const viewId = await this.#session.update(operationFields, this.viewId, {
       schemaId: this.schemaId,
       documentId: this.documentId,
     });
 
+    Object.keys(fields).forEach((fieldName) => {
+      this.#fields[fieldName] = fields[fieldName];
+    });
+
     this.viewId = viewId;
+
     return viewId;
   }
 
   async delete(): Promise<DocumentViewId> {
-    const viewId = await this.session.delete(this.viewId, {
+    const viewId = await this.#session.delete(this.viewId, {
       schemaId: this.schemaId,
       documentId: this.documentId,
     });

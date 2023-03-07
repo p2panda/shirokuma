@@ -16,6 +16,7 @@ import type {
   Fields,
   NextArgs,
   PublicKey,
+  SchemaFields,
   SchemaId,
 } from './types';
 
@@ -163,8 +164,8 @@ export class Session {
     return this;
   }
 
-  addSchema(schemaId: SchemaId): Schema {
-    return new Schema(schemaId, this);
+  addSchema(schemaId: SchemaId, schemaFields: SchemaFields): Schema {
+    return new Schema({ schemaId, schemaFields }, this);
   }
 
   /**

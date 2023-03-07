@@ -115,3 +115,63 @@ export type NextArgsVariables = {
  * Request data for `publish` GraphQL mutation.
  */
 export type PublishVariables = Payload;
+
+export type FieldString = {
+  type: 'str';
+};
+
+export type FieldInteger = {
+  type: 'int';
+};
+
+export type FieldFloat = {
+  type: 'float';
+};
+
+export type FieldBoolean = {
+  type: 'bool';
+};
+
+export type FieldRelation = {
+  type: 'relation';
+  value: string;
+};
+
+export type FieldRelationList = {
+  type: 'relation_list';
+  value: string[];
+};
+
+export type FieldPinnedRelation = {
+  type: 'pinned_relation';
+  value: string[];
+};
+
+export type FieldPinnedRelationList = {
+  type: 'pinned_relation_list';
+  value: string[][];
+};
+
+export type SchemaFields = {
+  [name: string]:
+    | FieldString
+    | FieldBoolean
+    | FieldFloat
+    | FieldInteger
+    | FieldRelation
+    | FieldRelationList
+    | FieldPinnedRelation
+    | FieldPinnedRelationList;
+};
+
+export type DocumentValue =
+  | string
+  | boolean
+  | number
+  | bigint
+  | string[]
+  | string[][];
+
+export type DocumentFields = {
+  [name: string]: DocumentValue;
+};

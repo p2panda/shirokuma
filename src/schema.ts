@@ -2,8 +2,23 @@
 
 import { Document } from './document';
 import { Session } from './session';
+import { marshallFields } from './utils';
 
-import type { DocumentId, DocumentViewId, Fields, SchemaId } from './types';
+import type {
+  DocumentFields,
+  DocumentId,
+  DocumentViewId,
+  FieldBoolean,
+  FieldFloat,
+  FieldInteger,
+  FieldPinnedRelation,
+  FieldPinnedRelationList,
+  FieldRelation,
+  FieldRelationList,
+  FieldString,
+  SchemaFields,
+  SchemaId,
+} from './types';
 
 type FindArgs = {
   documentId?: DocumentId;
@@ -14,14 +29,72 @@ type FindArgs = {
   // where?: { [field: string]: EasyValues };
 };
 
+export const FieldType = {
+  STRING: (): FieldString => {
+    return {
+      type: 'str',
+    };
+  },
+  INTEGER: (): FieldInteger => {
+    return {
+      type: 'int',
+    };
+  },
+  FLOAT: (): FieldFloat => {
+    return {
+      type: 'float',
+    };
+  },
+  BOOLEAN: (): FieldBoolean => {
+    return {
+      type: 'bool',
+    };
+  },
+  RELATION: (value: DocumentId): FieldRelation => {
+    return {
+      type: 'relation',
+      value,
+    };
+  },
+  RELATION_LIST: (value: DocumentId[]): FieldRelationList => {
+    return {
+      type: 'relation_list',
+      value,
+    };
+  },
+  PINNED_RELATION: (value: DocumentViewId): FieldPinnedRelation => {
+    return {
+      type: 'pinned_relation',
+      value: typeof value === 'string' ? value.split('_') : value,
+    };
+  },
+  PINNED_RELATION_LIST: (value: DocumentViewId[]): FieldPinnedRelationList => {
+    return {
+      type: 'pinned_relation_list',
+      value: value.map((item) => {
+        return typeof item === 'string' ? item.split('_') : item;
+      }),
+    };
+  },
+};
+
 export class Schema {
+  #session: Session;
+
+  #schemaFields: SchemaFields;
+
   readonly schemaId: SchemaId;
 
-  readonly session: Session;
+  constructor(
+    args: { schemaId: SchemaId; schemaFields: SchemaFields },
+    session: Session,
+  ) {
+    const { schemaFields, schemaId } = args;
 
-  constructor(schemaId: SchemaId, session: Session) {
+    this.#session = session;
+    this.#schemaFields = schemaFields;
+
     this.schemaId = schemaId;
-    this.session = session;
   }
 
   /* async find(args: FindArgs): Promise<Document> {
@@ -32,21 +105,24 @@ export class Schema {
 
   // async findCollection(): Promise<Collection> {}
 
-  async create(fields: Fields): Promise<Document> {
+  async create(fields: DocumentFields): Promise<Document> {
     const { schemaId } = this;
 
-    const documentId = (await this.session.create(fields, {
+    const operationFields = marshallFields(fields, this.#schemaFields);
+
+    const documentId = await this.#session.create(operationFields, {
       schemaId,
-    })) as DocumentId;
+    });
 
     const document = new Document(
       {
         fields,
         schemaId,
-        documentId,
+        schemaFields: this.#schemaFields,
+        documentId: documentId as DocumentId,
         viewId: documentId,
       },
-      this.session,
+      this.#session,
     );
 
     return document;
