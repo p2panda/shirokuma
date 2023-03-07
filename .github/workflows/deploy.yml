@@ -1,4 +1,4 @@
-name: Deploy website via GitHub pages
+name: pages
 
 on:
   push:
@@ -27,9 +27,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Run build
-        run: npm run build
 
       - name: Build documentation page
         run: npm run docs
