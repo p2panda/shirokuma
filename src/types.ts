@@ -134,22 +134,22 @@ export type FieldBoolean = {
 
 export type FieldRelation = {
   type: 'relation';
-  value: string;
+  schemaId: SchemaId;
 };
 
 export type FieldRelationList = {
   type: 'relation_list';
-  value: string[];
+  schemaId: SchemaId;
 };
 
 export type FieldPinnedRelation = {
   type: 'pinned_relation';
-  value: string[];
+  schemaId: SchemaId;
 };
 
 export type FieldPinnedRelationList = {
   type: 'pinned_relation_list';
-  value: string[][];
+  schemaId: SchemaId;
 };
 
 export type SchemaFields = {

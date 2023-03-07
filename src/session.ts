@@ -184,8 +184,6 @@ export class Session {
       throw new Error("Author's public key must be provided");
     }
 
-    console.log(`nextArgs: ${publicKey}, ${viewId}`);
-
     // Use cache only when viewId is set. If it is not set we need to determine
     // the next free logId but we do not keep track of that currently, so let's
     // ask the node!
@@ -194,7 +192,6 @@ export class Session {
       const cachedValue = this.cache.get(cacheKey);
 
       if (cachedValue) {
-        console.log('nextArgs: cache hit!');
         this.cache.remove(cacheKey);
         return cachedValue;
       }
@@ -204,8 +201,6 @@ export class Session {
       publicKey,
       viewId,
     });
-
-    console.log('nextArgs: return', result);
 
     return result;
   }
@@ -245,7 +240,6 @@ export class Session {
     const localViewId = generateHash(entry);
     const cacheKey = getCacheKey(publicKey, viewId || localViewId);
     this.cache.insert(cacheKey, nextArgs);
-    console.log('publish:', { entry, operation, localViewId, cacheKey });
 
     return localViewId;
   }
