@@ -71,7 +71,7 @@ export class Session {
   /**
    * Internal cache to keep state required for creating Bamboo entries.
    */
-  readonly cache: Cache<NextArgs>;
+  #cache: Cache<NextArgs>;
 
   /**
    * Initiates a new session.
@@ -86,7 +86,7 @@ export class Session {
 
     this.endpoint = endpoint;
     this.client = new GraphQLClient(endpoint);
-    this.cache = new Cache();
+    this.#cache = new Cache();
   }
 
   /**
@@ -189,10 +189,10 @@ export class Session {
     // ask the node!
     if (viewId) {
       const cacheKey = getCacheKey(publicKey, viewId);
-      const cachedValue = this.cache.get(cacheKey);
+      const cachedValue = this.#cache.get(cacheKey);
 
       if (cachedValue) {
-        this.cache.remove(cacheKey);
+        this.#cache.remove(cacheKey);
         return cachedValue;
       }
     }
@@ -239,7 +239,7 @@ export class Session {
     const publicKey = this.keyPair.publicKey();
     const localViewId = generateHash(entry);
     const cacheKey = getCacheKey(publicKey, viewId || localViewId);
-    this.cache.insert(cacheKey, nextArgs);
+    this.#cache.insert(cacheKey, nextArgs);
 
     return localViewId;
   }

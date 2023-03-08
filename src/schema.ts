@@ -2,6 +2,7 @@
 
 import { gql } from 'graphql-request';
 
+import { Collection } from './collection';
 import { Document } from './document';
 import { Session } from './session';
 import { marshallFields } from './utils';
@@ -77,7 +78,7 @@ type DocumentResponsePinnedRelationList = [
 ];
 
 type CollectionResponse = {
-  collections: [
+  collection: [
     {
       meta: {
         documentId: string;
@@ -86,16 +87,6 @@ type CollectionResponse = {
       fields: DocumentResponseFields;
     },
   ];
-};
-
-type Collection = {
-  documents: Document[];
-  [Symbol.iterator](): {
-    next(): {
-      value?: DocumentFields;
-      done: boolean;
-    };
-  };
 };
 
 export const FieldType = {
@@ -217,9 +208,9 @@ export class Schema {
   async find(args: FindArgs): Promise<Document> {
     const queryArgs = [];
     if (args.documentId) {
-      queryArgs.push(`id: ${args.documentId}`);
+      queryArgs.push(`id: "${args.documentId}"`);
     } else {
-      queryArgs.push(`viewId: ${args.viewId}`);
+      queryArgs.push(`viewId: "${args.viewId}"`);
     }
 
     const queryFields = getQueryFields(this.#schemaFields);
@@ -284,7 +275,7 @@ export class Schema {
     );
 
     const values: DocumentFields[] = [];
-    const documents = response.collections.map((item) => {
+    const documents = response.collection.map((item) => {
       const { documentId, viewId } = item.meta;
 
       const fields = getResponseFields(item.fields, this.#schemaFields);
@@ -302,26 +293,7 @@ export class Schema {
       );
     });
 
-    return {
-      documents,
-
-      [Symbol.iterator]() {
-        let nextIndex = 0;
-
-        return {
-          next() {
-            return nextIndex < values.length
-              ? {
-                  value: values[nextIndex++],
-                  done: false,
-                }
-              : {
-                  done: true,
-                };
-          },
-        };
-      },
-    };
+    return new Collection(documents, values);
   }
 
   async create(fields: DocumentFields): Promise<Document> {
