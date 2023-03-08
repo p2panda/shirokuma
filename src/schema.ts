@@ -253,7 +253,7 @@ export class Schema {
     return document;
   }
 
-  async findCollection(): Promise<Collection> {
+  async findMany(): Promise<Collection> {
     const queryFields = getQueryFields(this.#schemaFields);
 
     const query = gql`
