@@ -45,6 +45,29 @@ export class Document {
     this.schemaId = schemaId;
     this.documentId = documentId;
     this.viewId = viewId;
+
+    return new Proxy(this, {
+      get(target, prop, receiver) {
+        if (Object.keys(fields).includes(prop as string) && !(prop in target)) {
+          return target.get.apply(target, [prop as string]);
+        }
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        const value = target[prop];
+        if (value instanceof Function) {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          return function (...args) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            return value.apply(this === receiver ? target : this, args);
+          };
+        }
+
+        return value;
+      },
+    });
   }
 
   get(name: string): DocumentValue {
