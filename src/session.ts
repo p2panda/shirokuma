@@ -3,16 +3,20 @@
 import { GraphQLClient } from 'graphql-request';
 import { generateHash, KeyPair } from 'p2panda-js';
 
+import { Cache } from './cache';
+import { Schema } from './schema';
 import { createOperation, deleteOperation, updateOperation } from './operation';
 import { nextArgs, publish } from './graphql';
 
 import type {
+  DocumentId,
   DocumentViewId,
   EncodedEntry,
   EncodedOperation,
   Fields,
   NextArgs,
   PublicKey,
+  SchemaFields,
   SchemaId,
 } from './types';
 
@@ -31,7 +35,13 @@ export type Options = {
    * document.
    */
   schemaId: SchemaId;
+
+  documentId: DocumentId;
 };
+
+function getCacheKey(publicKey: PublicKey, viewId: DocumentViewId) {
+  return `${publicKey}/${viewId}`;
+}
 
 /**
  * Communicate with the p2panda network through a `Session` instance.
@@ -59,6 +69,11 @@ export class Session {
   readonly client: GraphQLClient;
 
   /**
+   * Internal cache to keep state required for creating Bamboo entries.
+   */
+  #cache: Cache<NextArgs>;
+
+  /**
    * Initiates a new session.
    *
    * @param endpoint - URL of p2panda node
@@ -71,6 +86,7 @@ export class Session {
 
     this.endpoint = endpoint;
     this.client = new GraphQLClient(endpoint);
+    this.#cache = new Cache();
   }
 
   /**
@@ -148,6 +164,10 @@ export class Session {
     return this;
   }
 
+  addSchema(schemaId: SchemaId, schemaFields: SchemaFields): Schema {
+    return new Schema({ schemaId, schemaFields }, this);
+  }
+
   /**
    * Return arguments for constructing the next entry given public key and
    * document view id.
@@ -162,6 +182,19 @@ export class Session {
   ): Promise<NextArgs> {
     if (!publicKey) {
       throw new Error("Author's public key must be provided");
+    }
+
+    // Use cache only when viewId is set. If it is not set we need to determine
+    // the next free logId but we do not keep track of that currently, so let's
+    // ask the node!
+    if (viewId) {
+      const cacheKey = getCacheKey(publicKey, viewId);
+      const cachedValue = this.#cache.get(cacheKey);
+
+      if (cachedValue) {
+        this.#cache.remove(cacheKey);
+        return cachedValue;
+      }
     }
 
     const result = await nextArgs(this.client, {
@@ -195,18 +228,19 @@ export class Session {
   async publish(
     entry: EncodedEntry,
     operation: EncodedOperation,
+    viewId?: DocumentViewId,
   ): Promise<DocumentViewId> {
     if (!entry || !operation) {
       throw new Error('Encoded entry and operation must be provided');
     }
 
-    // Publish entry with operation payload and retreive next entry arguments
-    // for future updates on that document
-    await publish(this.client, { entry, operation });
-    const localViewId = generateHash(entry);
+    const nextArgs = await publish(this.client, { entry, operation });
 
-    // Return document view id of the "latest" version from our perspective,
-    // hence "local"
+    const publicKey = this.keyPair.publicKey();
+    const localViewId = generateHash(entry);
+    const cacheKey = getCacheKey(publicKey, viewId || localViewId);
+    this.#cache.insert(cacheKey, nextArgs);
+
     return localViewId;
   }
 
@@ -317,10 +351,11 @@ export class Session {
 
     const schemaId = options?.schemaId || this.schemaId;
     const keyPair = options?.keyPair || this.keyPair;
+    const document = options?.documentId || previous;
 
     // Retreive next entry arguments
     const publicKey = keyPair.publicKey();
-    const nextArgs = await this.nextArgs(publicKey, previous);
+    const nextArgs = await this.nextArgs(publicKey, document);
 
     // Sign and encode entry with UPDATE operation
     const { entry, operation } = updateOperation(
@@ -337,7 +372,7 @@ export class Session {
 
     // Publish entry and operation on node, return the "local" document view id
     // which in this case will be the id of the update we've just made
-    const localViewId = await this.publish(entry, operation);
+    const localViewId = await this.publish(entry, operation, document);
     return localViewId;
   }
 
@@ -383,10 +418,11 @@ export class Session {
 
     const schemaId = options?.schemaId || this.schemaId;
     const keyPair = options?.keyPair || this.keyPair;
+    const document = options?.documentId || previous;
 
     // Retreive next entry arguments
     const publicKey = keyPair.publicKey();
-    const nextArgs = await this.nextArgs(publicKey, previous);
+    const nextArgs = await this.nextArgs(publicKey, document);
 
     // Sign and encode entry with DELETE operation
     const { entry, operation } = deleteOperation(
@@ -402,7 +438,7 @@ export class Session {
 
     // Publish entry and operation on node, return the "local" document view id
     // which in this case will be the id of the deletion we've just made
-    const localViewId = await this.publish(entry, operation);
+    const localViewId = await this.publish(entry, operation, document);
     return localViewId;
   }
 }
