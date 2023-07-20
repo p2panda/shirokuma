@@ -107,7 +107,7 @@ function getPlugins({ format, mode }: Config): Plugin[] {
 
   // In umd builds we're bundling the dependencies as well, we need this plugin
   // here to help locating external dependencies
-  if (format === 'umd') {
+  if (format === 'umd' || format === 'esm') {
     result.push(
       pluginNodeResolve({
         // Use the "browser" module resolutions in the dependencies' package.json
@@ -159,7 +159,8 @@ function config({ format, mode }: Config): RollupOptions[] {
   // Only "umd" bundles contain all dependencies bundled as well. That's a
   // shame, but we hope that this will account for the "quick" uses of
   // shirokuma.
-  const external = format === 'umd' ? [] : Object.keys(pkg.dependencies);
+  const external =
+    format === 'umd' || format === 'esm' ? [] : Object.keys(pkg.dependencies);
 
   // Package build
   result.push({
