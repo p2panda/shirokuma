@@ -124,7 +124,10 @@ function getPlugins({ format, mode }: Config): Plugin[] {
   if (mode === 'slim') {
     result.push(
       pluginAlias({
-        entries: [{ find: 'p2panda-js', replacement: 'p2panda-js/slim' }],
+        entries: [
+          { find: 'p2panda-js', replacement: 'p2panda-js/slim' },
+          { find: 'graphql', replacement: 'graphql-web-lite' },
+        ],
       }),
     );
   }

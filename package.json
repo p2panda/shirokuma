@@ -80,8 +80,8 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
-    "graphql": "npm:graphql-web-lite@^16.6.0-4",
     "graphql-request": "^5.2.0",
+    "graphql-web-lite": "^16.6.0-4",
     "p2panda-js": "^0.7.0"
   }
 }
