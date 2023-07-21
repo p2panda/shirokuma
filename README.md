@@ -78,8 +78,8 @@ await session.create(fields, { schemaId: CHAT_SCHEMA });
 
 ## Usage
 
-`shirokuma` runs both in NodeJS and web browsers and comes as a ES, CommonJS
-or UMD module. It can easily be integrated into Webpack, Rollup or other tools.
+`shirokuma` runs both in NodeJS and web browsers and comes as a ES and CommonJS
+module. It can easily be integrated into Webpack, Rollup or other tools.
 
 Since `shirokuma` contains WebAssembly code, it is necessary to initialise it
 before using the methods in the Browser. This initialisation step is not
@@ -89,6 +89,21 @@ To make this step a little bit easier `shirokuma` inlines the WebAssembly code
 as a base64 string which gets decoded automatically during initialisation. For
 manual initialisation the package also comes with "slim" versions where you
 need to provide a path to the ".wasm" file yourself.
+
+### Browser
+
+To quickly get started, you can run `shirokuma` in any modern browser as an ES module like that. Note that this uses the bundled version, with all 3rd party dependencies included plus the WebAssembly code itself:
+
+```html
+<script type="module">
+  import { initWebAssembly, KeyPair } from 'https://cdn.jsdelivr.net/npm/shirokuma@0.2.0/lib/esm-bundle/index.min.js';
+
+  initWebAssembly().then(() => {
+    const keyPair = new KeyPair();
+    console.log(keyPair.publicKey());
+  });
+</script>
+```
 
 ### NodeJS
 
@@ -103,7 +118,7 @@ console.log(keyPair.publicKey());
 ```javascript
 import { initWebAssembly, KeyPair } from 'shirokuma';
 
-// This only needs to be done once before using all `shirokuma` methods.
+// This only needs to be done once before using all `shirokuma` methods
 await initWebAssembly();
 
 const keyPair = new KeyPair();
@@ -112,12 +127,12 @@ console.log(keyPair.publicKey());
 
 ### Manually load `.wasm`
 
-Running `shirokuma` in the browser automatically inlines the WebAssembly
-inside the JavaScript file, encoded as a base64 string. While this works for
-most developers, it also doubles the size of the imported file. To avoid larger
-payloads and decoding times you can load the `.wasm` file manually by using a
-"slim" version. For this you need to initialise the module by passing the path
-to the file into `initWebAssembly`:
+Running `shirokuma` automatically inlines the WebAssembly inside the JavaScript
+file, encoded as a base64 string. While this works for most developers, it also
+doubles the size of the imported file. To avoid larger payloads and decoding
+times you can load the `.wasm` file manually by using a "slim" version. For
+this you need to initialise the module by passing the path to the file into
+`initWebAssembly`:
 
 ```javascript
 // Import from `slim` module to manually initialise WebAssembly code

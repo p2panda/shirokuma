@@ -2,7 +2,7 @@
 
 import { encodeOperation } from 'p2panda-js';
 
-import { signAndHashEntry } from './entry';
+import { signAndHashEntry } from './entry.js';
 
 import type {
   CreateArgs,
@@ -10,7 +10,7 @@ import type {
   EntryArgs,
   PublishVariables,
   UpdateArgs,
-} from './types';
+} from './types.js';
 
 /**
  * Encodes and signs a CREATE operation with the given data fields.

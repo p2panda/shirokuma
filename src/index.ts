@@ -2,9 +2,9 @@
 
 import { KeyPair, initWebAssembly } from 'p2panda-js';
 
-import { Session } from './session';
+import { Session } from './session.js';
 
 export { Session, KeyPair, initWebAssembly };
 
-export type { Options } from './session';
-export type { SchemaId, NextArgs, DocumentViewId, Fields } from './types';
+export type { Options } from './session.js';
+export type { SchemaId, NextArgs, DocumentViewId, Fields } from './types.js';

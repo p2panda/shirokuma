@@ -2,7 +2,7 @@
 
 import { GraphQLClient, gql } from 'graphql-request';
 
-import type { NextArgs, NextArgsVariables, PublishVariables } from './types';
+import type { NextArgs, NextArgsVariables, PublishVariables } from './types.js';
 
 type NextArgsResponse = {
   nextArgs: NextArgs;

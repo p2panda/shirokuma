@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+* Add bundled version for ESM and CJS builds, remove UMD and Node builds [#25](https://github.com/p2panda/shirokuma/pull/25)
+
 ## [0.1.0]
 
 Released on 2023-03-07 :package:
