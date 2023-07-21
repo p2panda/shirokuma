@@ -78,8 +78,8 @@ await session.create(fields, { schemaId: CHAT_SCHEMA });
 
 ## Usage
 
-`shirokuma` runs both in NodeJS and web browsers and comes as a ES and
-CommonJS. It can easily be integrated into Webpack, Rollup or other tools.
+`shirokuma` runs both in NodeJS and web browsers and comes as a ES and CommonJS
+module. It can easily be integrated into Webpack, Rollup or other tools.
 
 Since `shirokuma` contains WebAssembly code, it is necessary to initialise it
 before using the methods in the Browser. This initialisation step is not
