@@ -7,7 +7,7 @@
   "exports": {
     ".": {
       "types": "./lib/cjs/index.d.ts",
-      "node": "./lib/node/index.cjs",
+      "node": "./lib/cjs/index.cjs",
       "import": "./lib/esm/index.js",
       "default": "./lib/cjs/index.cjs"
     },
@@ -16,6 +16,10 @@
       "node": "./lib/node/index.cjs",
       "import": "./lib/esm-slim/index.js",
       "default": "./lib/cjs-slim/index.cjs"
+    },
+    "./bundle": {
+      "import": "./lib/esm-bundle/index.js",
+      "default": "./lib/cjs-bundle/index.cjs"
     },
     "./p2panda.wasm": "./lib/p2panda.wasm",
     "./package.json": "./package.json"

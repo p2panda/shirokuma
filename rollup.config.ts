@@ -17,7 +17,7 @@ import type {
   OutputOptions,
 } from 'rollup';
 
-type BuildMode = 'inline' | 'slim' | 'node';
+type BuildMode = 'inline' | 'slim' | 'bundle';
 
 type BuildName = string;
 
@@ -44,6 +44,7 @@ function pluginCopyWasm(): Plugin {
     name: 'copy-wasm',
     resolveImportMeta: () => `""`,
     generateBundle() {
+      fs.mkdirSync(DIST_DIR, { recursive: true });
       fs.copyFileSync(
         path.resolve('./node_modules/p2panda-js/lib/p2panda.wasm'),
         path.resolve(`${DIST_DIR}/p2panda.wasm`),
@@ -55,8 +56,8 @@ function pluginCopyWasm(): Plugin {
 // Returns the name of the sub-directory which will be created in the target
 // folder for each build.
 function getBuildName({ format, mode }: Config): BuildName {
-  if (mode === 'node') {
-    return 'node';
+  if (mode === 'bundle') {
+    return `${format}-bundle`;
   } else if (mode === 'inline') {
     return format;
   } else {
@@ -81,21 +82,19 @@ function getOutputs({ format, mode }: Config): OutputOptions[] {
     sourcemap,
   });
 
-  // Provide a minified version for non-NodeJS builds
-  if (mode !== 'node') {
-    result.push({
-      name: pkg.name,
-      file: `${DIST_DIR}/${dirName}/${BUILD_FILE_NAME}.min.js`,
-      format,
-      sourcemap,
-      plugins: [pluginTerser()],
-    });
-  }
+  // Provide a minified version for all builds
+  result.push({
+    name: pkg.name,
+    file: `${DIST_DIR}/${dirName}/${BUILD_FILE_NAME}.min.js`,
+    format,
+    sourcemap,
+    plugins: [pluginTerser()],
+  });
 
   return result;
 }
 
-function getPlugins({ format, mode }: Config): Plugin[] {
+function getPlugins({ mode }: Config): Plugin[] {
   const result: Plugin[] = [];
 
   // Convert external CommonJS- to ES6 modules
@@ -107,7 +106,7 @@ function getPlugins({ format, mode }: Config): Plugin[] {
 
   // In umd builds we're bundling the dependencies as well, we need this plugin
   // here to help locating external dependencies
-  if (format === 'umd') {
+  if (mode === 'bundle') {
     result.push(
       pluginNodeResolve({
         // Use the "browser" module resolutions in the dependencies' package.json
@@ -141,11 +140,8 @@ function getPlugins({ format, mode }: Config): Plugin[] {
   // Compile TypeScript source code to JavaScript
   result.push(pluginTypeScript());
 
-  // We only need to copy this once, let's pick NodeJS build for that (since it
-  // only gets build once)
-  if (mode === 'node') {
-    result.push(pluginCopyWasm());
-  }
+  // We only need to copy this once
+  result.push(pluginCopyWasm());
 
   return result;
 }
@@ -162,13 +158,12 @@ function config({ format, mode }: Config): RollupOptions[] {
   // Determine plugins which will be used to process this build
   const plugins = getPlugins({ format, mode });
 
-  // Treat all npm dependencies as external, we don't want to include them in
-  // our bundle.
+  // We build modules in two versions: 1. with no 3rd party dependencies included
+  // and 2. bundled inside of them.
   //
-  // Only "umd" bundles contain all dependencies bundled as well. That's a
-  // shame, but we hope that this will account for the "quick" uses of
-  // shirokuma.
-  const external = format === 'umd' ? [] : Object.keys(pkg.dependencies);
+  // Bundling them is somewhat a shame, but we hope that this will account for
+  // the "quick" uses of shirokuma.
+  const external = mode === 'bundle' ? [] : Object.keys(pkg.dependencies);
 
   // Package build
   result.push({
@@ -194,16 +189,16 @@ function config({ format, mode }: Config): RollupOptions[] {
 
 export default [
   ...config({
-    format: 'umd',
-    mode: 'inline',
-  }),
-  ...config({
     format: 'cjs',
     mode: 'inline',
   }),
   ...config({
     format: 'cjs',
     mode: 'slim',
+  }),
+  ...config({
+    format: 'cjs',
+    mode: 'bundle',
   }),
   ...config({
     format: 'esm',
@@ -214,7 +209,7 @@ export default [
     mode: 'slim',
   }),
   ...config({
-    format: 'cjs',
-    mode: 'node',
+    format: 'esm',
+    mode: 'bundle',
   }),
 ];
