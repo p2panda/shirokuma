@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 * Add bundled version for ESM and CJS builds, remove UMD and Node builds [#25](https://github.com/p2panda/shirokuma/pull/25)
+* Re-export `OperationFields` from `p2panda-js` [#26](https://github.com/p2panda/shirokuma/pull/26)
 
 ## [0.1.0]
 
