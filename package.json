@@ -1,25 +1,25 @@
 {
   "name": "shirokuma",
   "version": "0.1.0",
-  "description": "TypeScript framework to easily write p2panda applications",
+  "description": "TypeScript SDK to easily write p2panda applications",
   "type": "module",
-  "types": "./lib/umd/index.d.ts",
+  "main": "./lib/cjs/index.js",
+  "types": "./lib/esm/index.d.ts",
   "exports": {
     ".": {
       "types": "./lib/cjs/index.d.ts",
-      "node": "./lib/cjs/index.cjs",
-      "import": "./lib/esm/index.js",
-      "default": "./lib/cjs/index.cjs"
+      "require": "./lib/cjs/index.cjs",
+      "import": "./lib/esm/index.js"
     },
     "./slim": {
       "types": "./lib/cjs-slim/index.d.ts",
-      "node": "./lib/node/index.cjs",
-      "import": "./lib/esm-slim/index.js",
-      "default": "./lib/cjs-slim/index.cjs"
+      "require": "./lib/node/index.cjs",
+      "import": "./lib/esm-slim/index.js"
     },
     "./bundle": {
-      "import": "./lib/esm-bundle/index.js",
-      "default": "./lib/cjs-bundle/index.cjs"
+      "types": "./lib/cjs-bundle/index.d.ts",
+      "require": "./lib/cjs-bundle/index.cjs",
+      "import": "./lib/esm-bundle/index.js"
     },
     "./p2panda.wasm": "./lib/p2panda.wasm",
     "./package.json": "./package.json"
