@@ -116,18 +116,27 @@ function getPlugins({ format, mode }: Config): Plugin[] {
     );
   }
 
+  // graphql-web-lite provides an alias package that can be swapped in for
+  // the standard graphql package in client-side applications. It aims to
+  // reduce the size of imports that are in common use by GraphQL clients
+  // and users, while still providing most graphql exports that are used
+  // in other contexts.
+  const entries = [{ find: 'graphql', replacement: 'graphql-web-lite' }];
+
   // Whenever we want to build a "slim" version of shirokuma we have to import
   // the "slim" version of p2panda-js.
   //
   // The "slim" version does not contain the WebAssembly inlined (as a base64
   // string) and is therefore smaller.
   if (mode === 'slim') {
-    result.push(
-      pluginAlias({
-        entries: [{ find: 'p2panda-js', replacement: 'p2panda-js/slim' }],
-      }),
-    );
+    entries.push({ find: 'p2panda-js', replacement: 'p2panda-js/slim' });
   }
+
+  result.push(
+    pluginAlias({
+      entries,
+    }),
+  );
 
   // Compile TypeScript source code to JavaScript
   result.push(pluginTypeScript());
