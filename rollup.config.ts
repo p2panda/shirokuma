@@ -88,6 +88,7 @@ function getOutputs({ format, mode }: Config): OutputOptions[] {
     file: `${DIST_DIR}/${dirName}/${BUILD_FILE_NAME}.min.js`,
     format,
     sourcemap,
+    // @ts-expect-error: TypeScript misinterprets the module configuration
     plugins: [pluginTerser()],
   });
 
@@ -99,6 +100,7 @@ function getPlugins({ mode }: Config): Plugin[] {
 
   // Convert external CommonJS- to ES6 modules
   result.push(
+    // @ts-expect-error: TypeScript misinterprets the module configuration
     pluginCommonJS({
       extensions: ['.js', '.ts'],
     }),
@@ -132,12 +134,14 @@ function getPlugins({ mode }: Config): Plugin[] {
   }
 
   result.push(
+    // @ts-expect-error: TypeScript misinterprets the module configuration
     pluginAlias({
       entries,
     }),
   );
 
   // Compile TypeScript source code to JavaScript
+  // @ts-expect-error: TypeScript misinterprets the module configuration
   result.push(pluginTypeScript());
 
   // We only need to copy this once

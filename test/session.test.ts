@@ -6,10 +6,10 @@ import fetchMockJest from 'fetch-mock-jest';
 
 import fixtures from './fixtures.json';
 
-import { Session, KeyPair } from '../src';
-import { GQL_PUBLISH, GQL_NEXT_ARGS } from '../src/graphql';
+import { Session, KeyPair } from '../src/index.js';
+import { GQL_PUBLISH, GQL_NEXT_ARGS } from '../src/graphql.js';
 
-import type { Fields } from '../src/types';
+import type { Fields } from '../src/types.js';
 import type { FetchMockStatic } from 'fetch-mock';
 
 /**

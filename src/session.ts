@@ -3,8 +3,12 @@
 import { GraphQLClient } from 'graphql-request';
 import { generateHash, KeyPair } from 'p2panda-js';
 
-import { createOperation, deleteOperation, updateOperation } from './operation';
-import { nextArgs, publish } from './graphql';
+import {
+  createOperation,
+  deleteOperation,
+  updateOperation,
+} from './operation.js';
+import { nextArgs, publish } from './graphql.js';
 
 import type {
   DocumentViewId,
@@ -14,7 +18,7 @@ import type {
   NextArgs,
   PublicKey,
   SchemaId,
-} from './types';
+} from './types.js';
 
 /**
  * Options we can pass in into methods which will override the globally set
