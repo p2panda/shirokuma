@@ -96,7 +96,7 @@ To quickly get started, you can run `shirokuma` in any modern browser as an ES m
 
 ```html
 <script type="module">
-  import { initWebAssembly, KeyPair } from 'https://cdn.jsdelivr.net/npm/shirokuma@0.2.0/lib/esm-bundle/index.min.js';
+  import { initWebAssembly, KeyPair } from 'https://cdn.jsdelivr.net/npm/shirokuma@0.1.1/lib/esm-bundle/index.min.js';
 
   initWebAssembly().then(() => {
     const keyPair = new KeyPair();
