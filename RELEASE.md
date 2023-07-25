@@ -22,9 +22,9 @@ _This is an example for publising version `1.2.0`._
 
 ## Tagging and versioning
 
-9. Bump the package version in `package.json` using `npm version [major|minor|patch]` 
+9. Change the examples in the `README.md` which import `shirokuma` by version to use the latest version
+10. Bump the package version in `package.json` using `npm version [major|minor|patch]` 
    (this is using [semantic versioning](https://semver.org/)).
-10. Change the examples in the `README.md` which import `shirokuma` by version to use the latest version
 11. Push your changes including your tags using `git push origin main --tags`.
 
 ## Publishing releases
