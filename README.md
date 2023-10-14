@@ -1,7 +1,9 @@
 <h1 align="center">shirokuma</h1>
 
 <div align="center">
+  <img src="https://raw.githubusercontent.com/p2panda/.github/main/assets/rainbow.gif" width="auto" height="30px">
   <strong>TypeScript framework to easily write p2panda applications</strong>
+  <img src="https://raw.githubusercontent.com/p2panda/.github/main/assets/rainbow.gif" width="auto" height="30px">
 </div>
 
 <br />
