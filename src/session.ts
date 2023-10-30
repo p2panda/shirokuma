@@ -413,7 +413,32 @@ export class Session {
   }
 
   /**
-   * Create a blob document.
+   * Publish a blob.
+   * 
+   * The blob byte array is split into 256kb long pieces which are each published
+   * individually, following this the blob document itself is published. Included
+   * metadata is `mime_type` [str] and `length` [int] representing the complete
+   * byte length of the blob file.
+   * 
+   * @param blob - blob data to be published
+   * @param options - overrides globally set options for this method call
+   * @param options.keyPair - will be used to sign the new entry
+   * @returns Document id of the blob we've created
+   * @example
+   * ```
+   * const endpoint = 'http://localhost:2020/graphql';
+   * const keyPair = new KeyPair();
+   *
+   *
+   * const session = await new Session(endpoint)
+   *   .setKeyPair(keyPair)
+   *   .create(fields, { schemaId });
+   * 
+   * const input = document.querySelector('input');
+   * const blob = input.files[0];
+   * await session.createBlob(blob);
+   * ```
+
    */
   async createBlob(
     blob: Blob,
