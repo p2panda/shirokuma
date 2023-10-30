@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Use `p2panda-js` version `0.8.0` [#27](https://github.com/p2panda/shirokuma/pull/27)
+
 ## [0.1.1]
 
 Released on 2023-07-25 :package:
