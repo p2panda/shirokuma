@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { GraphQLClient } from 'graphql-request';
-import { generateHash, KeyPair } from 'p2panda-js';
+import { generateHash, KeyPair, OperationFields } from 'p2panda-js';
 
 import {
   createOperation,
@@ -19,6 +19,8 @@ import type {
   PublicKey,
   SchemaId,
 } from './types.js';
+
+const MAX_BLOB_PIECE_LENGTH = 256 * 1000;
 
 /**
  * Options we can pass in into methods which will override the globally set
@@ -409,4 +411,105 @@ export class Session {
     const localViewId = await this.publish(entry, operation);
     return localViewId;
   }
+
+  /**
+   * Create a blob document.
+   */
+  async createBlob(
+    blob: Blob,
+    options?: Partial<Options>,
+  ): Promise<DocumentViewId> {
+    if (!blob) {
+      throw new Error('blob must be provided');
+    }
+
+    const mimetype = blob.type;
+    const bytes = await intoBytes(blob);
+    const keyPair = options?.keyPair || this.keyPair;
+
+    // Retreive next entry arguments
+    const publicKey = keyPair.publicKey();
+
+    const pieces = [];
+
+    // Get the length and calculate the total number of pieces, based on the
+    // maximum allowed piece size.
+    const length = bytes.byteLength;
+    const expected_pieces = Math.ceil(length / MAX_BLOB_PIECE_LENGTH);
+
+    for (let index = 0; index < expected_pieces; index++) {
+      const start = index * MAX_BLOB_PIECE_LENGTH;
+      const end = start + MAX_BLOB_PIECE_LENGTH;
+
+      // Take a slice from the blob bytes, these are the bytes we will publish
+      // as a blob piece.
+      const pieceBytes = bytes.slice(start, end);
+
+      // Compose a blob piece operation.
+      const fields = new OperationFields();
+      fields.insert('data', 'bytes', pieceBytes);
+
+      const nextArgs = await this.nextArgs(publicKey);
+
+      // Sign and encode entry with CREATE operation
+      const { entry, operation } = createOperation(
+        {
+          schemaId: 'blob_piece_v1',
+          fields,
+        },
+        {
+          keyPair,
+          nextArgs,
+        },
+      );
+
+      // Publish the blob piece and push it's id to the pieces array.
+      const viewId = await this.publish(entry, operation);
+      pieces.push([viewId.toString()]);
+    }
+
+    // Compose a blob operation, using the array of blob pieces we published
+    // in the previous step.
+    const fields = new OperationFields();
+    fields.insert('mime_type', 'str', mimetype);
+    fields.insert('length', 'int', length);
+    fields.insert('pieces', 'pinned_relation_list', pieces);
+
+    const nextArgs = await this.nextArgs(publicKey);
+
+    // Sign and encode entry with CREATE operation
+    const { entry, operation } = createOperation(
+      {
+        schemaId: 'blob_v1',
+        fields,
+      },
+      {
+        keyPair,
+        nextArgs,
+      },
+    );
+
+    // Publish the blob and return it's document view id.
+    const viewId = await this.publish(entry, operation);
+
+    return viewId;
+  }
 }
+
+// Helper method for converting a blob into a Uint8Array.
+const intoBytes = async (blob: Blob): Promise<Uint8Array> => {
+  const reader = new FileReader();
+
+  return new Promise((resolve, reject) => {
+    reader.onload = (e) => {
+      const arrayBuffer = e.target?.result;
+      const array = new Uint8Array(arrayBuffer as ArrayBuffer);
+      resolve(array);
+    };
+    reader.onerror = (e) => {
+      reject(e);
+    };
+
+    reader.readAsArrayBuffer(blob);
+  });
+};

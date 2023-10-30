@@ -24,6 +24,8 @@ export type DocumentViewId = string | string[];
 export type SchemaId =
   | 'schema_definition_v1'
   | 'schema_field_definition_v1'
+  | 'blob_v1'
+  | 'blob_piece_v1'
   | string;
 
 /**
