@@ -9,7 +9,7 @@ import fixtures from './fixtures.json';
 import { Session, KeyPair } from '../src/index.js';
 import { GQL_PUBLISH, GQL_NEXT_ARGS } from '../src/graphql.js';
 
-import type { Fields } from '../src/types.js';
+import type { DocumentViewId, Fields } from '../src/types.js';
 import type { FetchMockStatic } from 'fetch-mock';
 
 /**
@@ -238,7 +238,7 @@ describe('update', () => {
 
   it('returns the local view id of the updated document', async () => {
     const fields = fixtures.operations[1].fields as Fields;
-    const previous = fixtures.operations[1].previous as string[];
+    const previous = fixtures.operations[1].previous as DocumentViewId;
 
     await expect(
       session.update(fields, previous, {

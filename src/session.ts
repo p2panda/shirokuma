@@ -265,9 +265,13 @@ export class Session {
       },
     );
 
+    console.log(entry);
+    console.log(operation);
+
     // Publish entry and operation on node, return the "local" document view id
     // which in this case will be the id of the document we've just created
     const localViewId = await this.publish(entry, operation);
+    console.log(localViewId);
     return localViewId;
   }
 
@@ -339,9 +343,14 @@ export class Session {
       },
     );
 
+    console.log(entry);
+    console.log(operation);
+
     // Publish entry and operation on node, return the "local" document view id
     // which in this case will be the id of the update we've just made
     const localViewId = await this.publish(entry, operation);
+
+    console.log(localViewId);
     return localViewId;
   }
 
@@ -404,9 +413,14 @@ export class Session {
       },
     );
 
+    console.log(entry);
+    console.log(operation);
+
     // Publish entry and operation on node, return the "local" document view id
     // which in this case will be the id of the deletion we've just made
     const localViewId = await this.publish(entry, operation);
+
+    console.log(localViewId);
     return localViewId;
   }
 }
