@@ -19,6 +19,12 @@ export type EntryHash = string;
 export type DocumentViewId = string | string[];
 
 /**
+ * Document view id which contains one to many operation ids, encoded as one
+ * string separated by underscores.
+ */
+export type DocumentViewIdString = string;
+
+/**
  * Application- (custom) or System schema (constant) identifier.
  */
 export type SchemaId =

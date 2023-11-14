@@ -7,4 +7,4 @@ import { Session } from './session.js';
 export { Session, OperationFields, KeyPair, initWebAssembly };
 
 export type { Options } from './session.js';
-export type { SchemaId, NextArgs, DocumentViewId, Fields } from './types.js';
+export type { SchemaId, NextArgs, DocumentViewId, DocumentViewIdString, Fields } from './types.js';
