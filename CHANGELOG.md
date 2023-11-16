@@ -7,12 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2]
+
+> Released on 2023-11-16 :package:
+
 ### Changed
+
 - Use `p2panda-js` version `0.8.0` [#27](https://github.com/p2panda/shirokuma/pull/27)
 
 ## [0.1.1]
 
-Released on 2023-07-25 :package:
+> Released on 2023-07-25 :package:
 
 ### Changed
 
@@ -21,7 +26,7 @@ Released on 2023-07-25 :package:
 
 ## [0.1.0]
 
-Released on 2023-03-07 :package:
+> Released on 2023-03-07 :package:
 
 ### Changed
 
@@ -30,6 +35,7 @@ Released on 2023-03-07 :package:
 * Refactor code-base, remove caching layer, add "slim" and "inlined" builds [#12](https://github.com/p2panda/shirokuma/pull/12)
 * Write more about different WebAssembly contexts in `README.md` [#19](https://github.com/p2panda/shirokuma/pull/19)
 
-[unreleased]: https://github.com/p2panda/p2panda/compare/v0.1.1...HEAD
+[unreleased]: https://github.com/p2panda/p2panda/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/p2panda/p2panda/releases/tag/v0.1.2
 [0.1.1]: https://github.com/p2panda/p2panda/releases/tag/v0.1.1
 [0.1.0]: https://github.com/p2panda/p2panda/releases/tag/v0.1.0
