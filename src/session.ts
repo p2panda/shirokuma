@@ -12,7 +12,6 @@ import { nextArgs, publish } from './graphql.js';
 
 import type {
   DocumentViewId,
-  DocumentViewIdString,
   EncodedEntry,
   EncodedOperation,
   Fields,
@@ -195,12 +194,12 @@ export class Session {
    * string
    * @param operation - encoded CBOR operation, represented as hexadecimal
    * string
-   * @returns DocumentViewIdString - local document view id
+   * @returns DocumentViewId - local document view id
    */
   async publish(
     entry: EncodedEntry,
     operation: EncodedOperation,
-  ): Promise<DocumentViewIdString> {
+  ): Promise<DocumentViewId> {
     if (!entry || !operation) {
       throw new Error('Encoded entry and operation must be provided');
     }
@@ -242,7 +241,7 @@ export class Session {
   async create(
     fields: Fields,
     options?: Partial<Options>,
-  ): Promise<DocumentViewIdString> {
+  ): Promise<DocumentViewId> {
     if (!fields) {
       throw new Error('Fields must be provided');
     }
@@ -311,7 +310,7 @@ export class Session {
     fields: Fields,
     previous: DocumentViewId,
     options?: Partial<Options>,
-  ): Promise<DocumentViewIdString> {
+  ): Promise<DocumentViewId> {
     if (!fields) {
       throw new Error('Fields must be provided');
     }
@@ -381,7 +380,7 @@ export class Session {
   async delete(
     previous: DocumentViewId,
     options?: Partial<Options>,
-  ): Promise<DocumentViewIdString> {
+  ): Promise<DocumentViewId> {
     if (!previous) {
       throw new Error('Document view id must be provided');
     }

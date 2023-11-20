@@ -304,7 +304,7 @@ describe('delete', () => {
   });
 
   it('returns the local view id of the deleted document', async () => {
-    const previous = fixtures.operations[3].previous as string[];
+    const previous = fixtures.operations[3].previous as DocumentViewId;
 
     await expect(
       session.delete(previous, {
