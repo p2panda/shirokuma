@@ -429,7 +429,6 @@ export class Session {
    * const endpoint = 'http://localhost:2020/graphql';
    * const keyPair = new KeyPair();
    *
-   *
    * const session = await new Session(endpoint)
    *   .setKeyPair(keyPair)
    *   .create(fields, { schemaId });
@@ -452,7 +451,7 @@ export class Session {
     const bytes = await intoBytes(blob);
     const keyPair = options?.keyPair || this.keyPair;
 
-    // Retreive next entry arguments
+    // Retrieve next entry arguments
     const publicKey = keyPair.publicKey();
 
     const pieces = [];
