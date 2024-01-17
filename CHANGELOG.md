@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- introduce method for creating blobs to `Session` [#28](https://github.com/p2panda/shirokuma/pull/28)
+
 ## [0.1.2]
 
 > Released on 2023-11-16 :package:
