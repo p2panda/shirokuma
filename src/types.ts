@@ -13,10 +13,10 @@ export type PublicKey = string;
 export type EntryHash = string;
 
 /**
- * Document view id which contains one to many operation ids, either as one
- * string separated by underscores or as an array of strings.
+ * Document view id which contains one to many operation ids, joined
+ * together into a single string separated by underscores.
  */
-export type DocumentViewId = string | string[];
+export type DocumentViewId = string;
 
 /**
  * Application- (custom) or System schema (constant) identifier.
