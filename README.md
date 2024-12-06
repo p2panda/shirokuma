@@ -29,7 +29,7 @@
       Releases
     </a>
     <span> | </span>
-    <a href="https://github.com/p2panda/handbook#how-to-contribute">
+    <a href="https://aquadoggo.p2panda.org/about/contribute/">
       Contributing
     </a>
   </h3>
@@ -39,7 +39,7 @@
 
 This library provides all tools required to write an [`p2panda`] application in TypeScript, running in any modern web browser.
 
-[`p2panda`]: https://p2panda.org
+[`p2panda`]: https://aquadoggo.p2panda.org/
 
 ## Installation
 
